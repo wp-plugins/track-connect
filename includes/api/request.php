@@ -10,7 +10,7 @@ class pluginApi{
 		$this->token = $token;
         $this->domain = $domain;		
         $this->endpoint = (strtoupper($domain) == 'HSR')?"trackstaging.info":"trackhs.com";
-        $this->endpoint = 'http://'.$domain.'.jreed.trackhs.com';
+        //$this->endpoint = 'http://'.$domain.'.jreed.trackhs.com';
 	}
     
 	public function getUnits(){
