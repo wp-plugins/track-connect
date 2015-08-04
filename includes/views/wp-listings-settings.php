@@ -53,7 +53,7 @@
                     <h2>Track PM Settings</h2>
                     <?php
     					_e("<p>Domain code used in Track</p>", 'wp_listings' );
-    				    echo '<h4>Domain: <input name="plugin_wp_listings_settings[wp_listings_domain]" id="wp_listings_domain" type="text" value="' . $options['wp_listings_domain'] . '" size="6" /></h4>';
+    				    echo '<h4>Domain: <input name="plugin_wp_listings_settings[wp_listings_domain]" id="wp_listings_domain" type="text" value="' . $options['wp_listings_domain'] . '" size="15" /></h4>';
                     ?>
                     <?php
     					_e("<p>API token</p>", 'wp_listings' );
@@ -91,7 +91,7 @@
                         <input name="submit" class="button-primary" type="submit" value="Sync Units" />
     				</form>
                 <?php else: ?>
-                    <h4>A domain is required to be saved above to sync units.</h4>
+                    <h4>A domain and token is required to be saved above to sync units.</h4>
                 <?php endif; ?>
 				
             </div>
