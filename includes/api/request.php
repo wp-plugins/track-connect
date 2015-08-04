@@ -9,16 +9,16 @@ class pluginApi{
 	public function __construct($domain,$token){
 		$this->token = $token;
         $this->domain = $domain;		
-        $this->endpoint = (strtoupper($domain) == 'HSR')?"trackstaging.info":"trackhs.com";
-        $this->endpoint = 'http://'.$domain.'.jreed.trackhs.com';
+        $this->endpoint = (strtoupper($domain) == 'HSR')?'http://hsr.trackstaging.info':'https://'.strtolower($domain).'.trackhs.com';
+        
 	}
-    
+
 	public function getUnits(){
 		global $wpdb;
         
         $unitsCreated = 0;
         $unitsUpdated = 0;
-        
+
 		$units = wp_remote_post($this->endpoint.'/api/wordpress/units/',
 		array(
 			'timeout'     => 500,
@@ -27,9 +27,7 @@ class pluginApi{
 			    )
 			)
         );
-        
-        
-        
+
 		foreach(json_decode($units['body'])->response as $id => $unit){
 
 			if (!isset($unit->occupancy) || $unit->occupancy == 0) {
@@ -37,10 +35,13 @@ class pluginApi{
 			} else {
 				$occupancy = $unit->occupancy;
 			}
-
-			$timestamp = new \DateTime('now');            
             
-			//$wpdb->replace('wp_postmeta',$insertArray);
+            if(count($unit->images)){
+                usort($unit->images, function($a, $b) {
+                    return $a->rank - $b->rank;
+                });
+            }           
+            
 			$post = $wpdb->get_row("SELECT post_id FROM wp_postmeta WHERE meta_key = '_listing_unit_id' AND meta_value = '".$id."' LIMIT 1;");
 			if($post->post_id > 0){
     			$unitsUpdated++;
