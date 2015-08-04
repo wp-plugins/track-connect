@@ -1,6 +1,6 @@
 <div id="icon-options-general" class="icon32"></div>
 <div class="wrap">
-	<h2>Track Listings Settings</h2>
+	<h2>TRACK Connect Settings</h2>
 	<hr>
 	<div id="poststuff" class="metabox-holder has-right-sidebar">
 		<div id="side-info-column" class="inner-sidebar">

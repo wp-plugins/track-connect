@@ -10,7 +10,7 @@ class pluginApi{
 		$this->token = $token;
         $this->domain = $domain;		
         $this->endpoint = (strtoupper($domain) == 'HSR')?"trackstaging.info":"trackhs.com";
-        $this->endpoint = 'http://hsr.jreed.trackhs.com';
+        $this->endpoint = 'http://'.$domain.'.jreed.trackhs.com';
 	}
     
 	public function getUnits(){
@@ -19,9 +19,17 @@ class pluginApi{
         $unitsCreated = 0;
         $unitsUpdated = 0;
         
-		$units = wp_remote_get($this->endpoint.'/api/wordpress/'.$this->domain.'/'.$this->token.'/v1/units/',array(
-			'timeout'     => 500));
-
+		$units = wp_remote_post($this->endpoint.'/api/wordpress/units/',
+		array(
+			'timeout'     => 500,
+			'body' => array( 
+    			'token'     => $this->token
+			    )
+			)
+        );
+        
+        
+        
 		foreach(json_decode($units['body'])->response as $id => $unit){
 
 			if (!isset($unit->occupancy) || $unit->occupancy == 0) {
@@ -51,7 +59,7 @@ class pluginApi{
                     ('".$post_id."', '_listing_occupancy', '".$occupancy."' ),
                     ('".$post_id."', '_listing_min_rate', '$".$unit->min_rate."' ),
                     ('".$post_id."', '_listing_max_rate', '$".$unit->max_rate."' ),
-                    ('".$post_id."', '_listing_first_image', '".$unit->first_image."' )  ;");
+                    ('".$post_id."', '_listing_first_image', '".$unit->images[0]->url."' )  ;");
                 
                 $post_status = 'publish';
     			if(!$unit->enabled_online){
@@ -115,7 +123,7 @@ class pluginApi{
                     ('".$post_id."', '_listing_occupancy', '".$occupancy."' ),
                     ('".$post_id."', '_listing_min_rate', '$".$unit->min_rate."' ),
                     ('".$post_id."', '_listing_max_rate', '$".$unit->max_rate."' ),
-                    ('".$post_id."', '_listing_first_image', '".$unit->first_image."' ) ;");                  
+                    ('".$post_id."', '_listing_first_image', '".$unit->images[0]->url."' ) ;");                  
                     
                 //Create the Status    
                 $term = $wpdb->get_row("SELECT term_id FROM wp_terms WHERE name = 'Active' AND slug = 'active';");
@@ -135,13 +143,14 @@ class pluginApi{
 		$checkin = date('Y-m-d', strtotime($checkin));
 		$checkout = date('Y-m-d', strtotime($checkout));
 		
-		$units = wp_remote_post($this->endpoint.'/api/wordpress/'.$this->domain.'/'.$this->token.'/v1/available-units/',
+		$units = wp_remote_post($this->endpoint.'/api/wordpress/available-units/',
 		array(
 			'timeout'     => 500,
 			'body' => array( 
-			    'checkin' => $checkin, 
-			    'checkout' => $checkout,
-			    'bedrooms' => $bedrooms
+    			'token'     => $this->token,
+			    'checkin'   => $checkin, 
+			    'checkout'  => $checkout,
+			    'bedrooms'  => $bedrooms
 			    )
 			)
         );
@@ -153,28 +162,6 @@ class pluginApi{
 
         return $unitArray;
     }
-
-	public function getUnitAreas(){
-		global $wpdb;
-
-		$unitAreas = wp_remote_get($this->endpoint.'/api/wordpress/'.$this->domain.'/'.$this->token.'/v1/areas/',array(
-			'timeout'     => 500));
-        
-        /*
-		$wpdb->query('update wp_trackhs_unit_area set enabled = 0;');
-		foreach(json_decode($unitAreas['body'])->response as $id => $area){
-			$insertArray = array(
-				'area_id' => $id,
-				'name' => isset($area->name) ? (string)$area->name : null,
-				'description' => isset($area->description) ? (string)$area->description : null,
-				'slug' => $this->slugify(isset($area->name) ? $area->name : null),
-				'enabled' => true,
-			);
-			$wpdb->replace('wp_trackhs_unit_area',$insertArray);
-		}
-		*/
-
-	}
 
 	static public function slugify($text){
 		// replace non letter or digits by -

@@ -108,7 +108,7 @@ class WP_Listings {
 		$args = apply_filters( 'wp_listings_post_type_args',
 			array(
 				'labels' => array(
-					'name'					=> __( 'Listings', 'wp_listings' ),
+					'name'					=> __( 'TRACK Connect', 'wp_listings' ),
 					'singular_name'			=> __( 'Listing', 'wp_listings' ),
 					'add_new'				=> __( 'Add New', 'wp_listings' ),
 					'add_new_item'			=> __( 'Add New Listing', 'wp_listings' ),

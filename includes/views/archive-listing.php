@@ -24,18 +24,22 @@ if($checkin && $checkout){
 
 function archive_listing_loop() {
 
-		global $post,$availableUnits,$checkAvailability,$bedrooms;
+		global $post,$availableUnits,$checkAvailability,$bedrooms,$checkin,$checkout;
 
 		$count = 0; // start counter at 0
-
+        
+        if($checkAvailability && !count($availableUnits)){
+            echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
+        }
+                
 		// Start the Loop.
 		while ( have_posts() ) : the_post();
 		    $unitId = get_post_meta( $post->ID, '_listing_unit_id', true );
 		    $bedroomSize = get_post_meta( $post->ID, '_listing_bedrooms', true );
-		    if($checkAvailability){
+		    if($checkAvailability){  		    
                 if(!in_array($unitId, $availableUnits)){
                     continue;   
-                }
+                }              
             }else{
                 if($bedrooms && $bedroomSize != $bedrooms){
                     continue;
@@ -45,10 +49,6 @@ function archive_listing_loop() {
 			$count++; // add 1 to counter on each loop
 			$first = ($count == 1) ? 'first' : ''; // if counter is 1 add class of first
             
-            /*
-            https://d2epyxaxvaz7xr.cloudfront.net/250x250/
-            https://d2epyxaxvaz7xr.cloudfront.net/759x470/
-            */
 			$loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="https://d2epyxaxvaz7xr.cloudfront.net/305x208/'.get_post_meta( $post->ID, '_listing_first_image', true ).'"></img> ' );
 
 			if ( '' != wp_listings_get_status() ) {

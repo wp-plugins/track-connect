@@ -1,15 +1,15 @@
-=== Track Connect ===
+=== TRACK Connect ===
 Contributors: trackhs
-Tags: trackpm, track sync
+Tags: trackpm, track sync, track hs, track
 Requires at least: 3.7
-Tested up to: 4.1
-Stable tag: 1.0
+Tested up to: 4.2.3
+Stable tag: 1.1
 
-Creates and syncs listing-type posts from Track PM, a cloud-based property management system (www.trackhs.com). Designed to work with any theme using built-in templates.
+Creates and syncs listing-type posts from TRACK PM, a cloud-based property management system (www.trackhs.com). Designed to work with any theme using built-in templates.
 
 == Description ==
 
-Track Connect uses custom post types, taxonomies, templates, and widgets to create a listing management system for WordPress. It includes custom templates and widgets for front end display.
+TRACK Connect uses custom post types, taxonomies, templates, and widgets to create a listing management system for WordPress. It includes custom templates and widgets for front end display.
 
 Single listings display the custom data automatically with no need to insert shortcodes to display listing data. If it's entered, it will display on the page.
 
@@ -43,6 +43,9 @@ Example advanced usage:
 This will display all listings in the "Status" taxonomy, assigned to the "Active" term, limited to 10 listings, in 3 columns
 
 == Changelog ==
+
+= 1.1 =
+* General bug fixes and updates
 
 = 1.0 =
 * Initial public release

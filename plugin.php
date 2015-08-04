@@ -6,7 +6,7 @@
 	Author: Track HS
 	Author URI: http://www.trackhs.com
 
-	Version: 1.0
+	Version: 1.1
 
 	License: GNU General Public License v2.0 (or later)
 	License URI: http://www.opensource.org/licenses/gpl-license.php
@@ -16,7 +16,7 @@ register_activation_hook( __FILE__, 'wp_listings_activation' );
 /**
  * This function runs on plugin activation. It flushes the rewrite rules to prevent 404's
  *
- * @since 0.1.0
+ * @since 1.0
  */
 function wp_listings_activation() {
 
@@ -34,7 +34,7 @@ register_deactivation_hook( __FILE__, 'wp_listings_deactivation' );
 /**
  * This function runs on plugin deactivation. It flushes the rewrite rules to get rid of remnants
  *
- * @since 1.0.8
+ * @since 1.0
  */
 function wp_listings_deactivation() {
 
@@ -47,14 +47,14 @@ add_action( 'after_setup_theme', 'wp_listings_init' );
  *
  * Include the libraries, define global variables, instantiate the classes.
  *
- * @since 0.1.0
+ * @since 1.0
  */
 function wp_listings_init() {
 
 	global $_wp_listings, $_wp_listings_taxonomies, $_wp_listings_templates;
 
 	define( 'WP_LISTINGS_URL', plugin_dir_url( __FILE__ ) );
-	define( 'WP_LISTINGS_VERSION', '1.2' );
+	define( 'WP_LISTINGS_VERSION', '1.1' );
 
 	/** Load textdomain for translation */
 	load_plugin_textdomain( 'wp_listings', false, basename( dirname( __FILE__ ) ) . '/languages/' );
@@ -156,9 +156,9 @@ function wp_listings_init() {
 }
 
 /**
- * Register Widgets that will be used in the WP Listings plugin
+ * Register Widgets that will be used in the plugin
  *
- * @since 0.1.0
+ * @since 1.0
  */
 function wp_listings_register_widgets() {
 
