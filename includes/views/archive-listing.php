@@ -19,7 +19,7 @@ if($checkin && $checkout){
     $checkAvailability = true;
     require_once( __DIR__ . '/../api/request.php' );
     $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
-    $availableUnits = $request->getAvailableUnits($checkin,$checkout,$bedrooms);
+    $availableUnits = $request->getAvailableUnits($checkin,$checkout,$bedrooms);    
 }
 
 function archive_listing_loop() {
@@ -32,8 +32,12 @@ function archive_listing_loop() {
             echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
         }
                 
-		// Start the Loop.
-		while ( have_posts() ) : the_post();
+		// Start the Loop. 
+		query_posts(array('post_type'=> 'listing','posts_per_page'=> 9,'post__in' => $availableUnits));
+		if ( have_posts() ) : 
+		    while ( have_posts() ) : the_post();
+		    //$post = $query->post;
+
 		    $unitId = get_post_meta( $post->ID, '_listing_unit_id', true );
 		    $bedroomSize = get_post_meta( $post->ID, '_listing_bedrooms', true );
 		    if($checkAvailability){  		    
@@ -64,14 +68,9 @@ function archive_listing_loop() {
 				$loop .= sprintf( '<span class="listing-property-type">%s</span>', wp_listings_get_property_types() );
 			}
             
-            $loop .= sprintf( '<span class="listing-property-type">%s</span>', 'starting at' );
-            
-			if ( '' != get_post_meta( $post->ID, '_listing_price', true ) ) {
-				//$loop .= sprintf( '<span class="listing-price">%s</span>', get_post_meta( $post->ID, '_listing_price', true ) );
-			}
-            
             if ( '' != get_post_meta( $post->ID, '_listing_min_rate', true ) ) {
-				$loop .= sprintf( '<span class="listing-price">%s/night</span>', get_post_meta( $post->ID, '_listing_min_rate', true ) );
+                $loop .= sprintf( '<span class="listing-property-type">%s</span>', 'starting at' );
+				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', get_post_meta( $post->ID, '_listing_min_rate', true ) );
 			}
 			
 			$loop .= sprintf( '</div><!-- .listing-thumb-meta --></div><!-- .listing-widget-thumb -->' );
@@ -107,41 +106,14 @@ function archive_listing_loop() {
 			}
 
 		endwhile;
-		if (function_exists('equity')) {
-			equity_posts_nav();
-		} elseif (function_exists('genesis_init')) {
-			genesis_posts_nav();
-		} else {
-			wp_listings_paging_nav();
-		}
+		endif;
+		
+
+        wp_listings_paging_nav();
 
 }
 
-if (function_exists('equity')) {
 
-	add_filter( 'equity_pre_get_option_site_layout', '__equity_return_full_width_content' );
-	remove_action( 'equity_entry_header', 'equity_post_info', 12 );
-	remove_action( 'equity_entry_footer', 'equity_post_meta' );
-
-	remove_action( 'equity_loop', 'equity_do_loop' );
-	add_action( 'equity_loop', 'archive_listing_loop' );
-
-	equity();
-
-} elseif (function_exists('genesis_init')) {
-
-	add_filter( 'genesis_pre_get_option_site_layout', '__genesis_return_full_width_content' );
-	remove_action( 'genesis_before_loop', 'genesis_do_breadcrumbs' );
-	remove_action( 'genesis_entry_header', 'genesis_post_info', 12 );
-	remove_action( 'genesis_entry_footer', 'genesis_post_meta' );
-	remove_action( 'genesis_after_entry', 'genesis_do_author_box_single' );
-
-	remove_action( 'genesis_loop', 'genesis_do_loop' );
-	add_action( 'genesis_loop', 'archive_listing_loop' );
-
-	genesis();
-
-} else {
 
 get_header(); ?>
 
@@ -185,5 +157,3 @@ get_header(); ?>
 get_sidebar( 'content' );
 get_sidebar();
 get_footer();
-
-}
