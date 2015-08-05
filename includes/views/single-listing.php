@@ -76,7 +76,7 @@ function single_listing_post_content() {
     		$listing_meta = sprintf( '<ul class="listing-meta">');
     
     		if ( '' != get_post_meta( $post->ID, '_listing_min_rate', true ) ) {
-    			$listing_meta .= sprintf( '<li class="listing-price">%s to %s / night</li>', get_post_meta( $post->ID, '_listing_min_rate', true ), get_post_meta( $post->ID, '_listing_max_rate', true ) );
+    			$listing_meta .= sprintf( '<li class="listing-price">$%s to $%s / night</li>', get_post_meta( $post->ID, '_listing_min_rate', true ), get_post_meta( $post->ID, '_listing_max_rate', true ) );
     		}
     
     		if ( '' != wp_listings_get_property_types() ) {
