@@ -24,31 +24,40 @@ if($checkin && $checkout){
 
 function archive_listing_loop() {
 
-		global $post,$availableUnits,$checkAvailability,$bedrooms,$checkin,$checkout;
+		global $post,$wp_query,$wp_the_query,$availableUnits,$checkAvailability,$bedrooms,$checkin,$checkout;
 
 		$count = 0; // start counter at 0
         
+    
         if($checkAvailability && !count($availableUnits)){
             echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
         }
                 
-		// Start the Loop. 
-		query_posts(array('post_type'=> 'listing','posts_per_page'=> 9,'post__in' => $availableUnits));
+		// Start the Loop.	
+		$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+		$args = array('post_type'=> 'listing','posts_per_page'=> 9,'paged'=>$paged);
+		if($bedrooms > 0){    		
+    		$args += array('meta_key' => '_listing_bedrooms','meta_value' => $bedrooms);
+		} 
+		if(get_query_var('status') != ''){   		
+    		$args += array('tax_query' => array(
+        		array(
+        			'taxonomy'          => 'status',
+        			'field'             => 'slug',
+        			'terms'             => get_query_var('status')
+        		),
+                ),);
+		} 
+		query_posts($args);
+
+		
 		if ( have_posts() ) : 
 		    while ( have_posts() ) : the_post();
 		    //$post = $query->post;
 
 		    $unitId = get_post_meta( $post->ID, '_listing_unit_id', true );
 		    $bedroomSize = get_post_meta( $post->ID, '_listing_bedrooms', true );
-		    if($checkAvailability){  		    
-                if(!in_array($unitId, $availableUnits)){
-                    continue;   
-                }              
-            }else{
-                if($bedrooms && $bedroomSize != $bedrooms){
-                    continue;
-                }
-            }
+		    
             
 			$count++; // add 1 to counter on each loop
 			$first = ($count == 1) ? 'first' : ''; // if counter is 1 add class of first
@@ -108,8 +117,9 @@ function archive_listing_loop() {
 		endwhile;
 		endif;
 		
-
-        wp_listings_paging_nav();
+        
+ 
+        wp_listings_paging_nav($args);
 
 }
 
