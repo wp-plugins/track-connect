@@ -76,13 +76,13 @@ function wp_listings_post_nav() {
  *
  * @since 0.1.0
  */
-function wp_listings_paging_nav($query_args) {
+function wp_listings_paging_nav($query_args = array(),$paged = 1) {
 	// Don't print empty markup if there's only one page.
 	if ( $GLOBALS['wp_query']->max_num_pages < 2 ) {
 		return;
 	}
-
-	$paged        = get_query_var( 'paged' ) ? intval( get_query_var( 'paged' ) ) : 1;
+    
+	//$paged        = get_query_var( 'paged' ) ? intval( get_query_var( 'paged' ) ) : 1;
 	$pagenum_link = html_entity_decode( get_pagenum_link() );
 	//$query_args   = array();
 	$url_parts    = explode( '?', $pagenum_link );

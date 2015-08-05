@@ -3,7 +3,7 @@ Contributors: trackhs
 Tags: trackpm, track sync, track hs, track
 Requires at least: 3.7
 Tested up to: 4.2.3
-Stable tag: 1.2
+Stable tag: 1.3
 
 Creates and syncs listing-type posts from TRACK PM, a cloud-based property management system (www.trackhs.com).
 
@@ -43,6 +43,9 @@ Example advanced usage:
 This will display all listings in the "Status" taxonomy, assigned to the "Active" term, limited to 10 listings, in 3 columns
 
 == Changelog ==
+
+= 1.3 =
+* Availability, formatting and taxonomy fixes
 
 = 1.2 =
 * Pagination fixes

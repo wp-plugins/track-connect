@@ -27,18 +27,25 @@ function archive_listing_loop() {
 		global $post,$wp_query,$wp_the_query,$availableUnits,$checkAvailability,$bedrooms,$checkin,$checkout;
 
 		$count = 0; // start counter at 0
-        
+        $unitsAvailable = true;
     
         if($checkAvailability && !count($availableUnits)){
             echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
+            $unitsAvailable = false;
         }
                 
 		// Start the Loop.	
-		$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
-		$args = array('post_type'=> 'listing','posts_per_page'=> 9,'paged'=>$paged);
+		$paged = (get_query_var('paged')) ? intval(get_query_var('paged')) : 1;
+		$args = array('post_type'=> 'listing','posts_per_page'=> 9);
+		if(get_query_var('paged')){    		
+    		$args += array('paged' => $paged);
+		}
 		if($bedrooms > 0){    		
     		$args += array('meta_key' => '_listing_bedrooms','meta_value' => $bedrooms);
-		} 
+		}
+		if($checkAvailability){    		
+    		$args += array('post__in' => $availableUnits);
+		}  
 		if(get_query_var('status') != ''){   		
     		$args += array('tax_query' => array(
         		array(
@@ -48,10 +55,10 @@ function archive_listing_loop() {
         		),
                 ),);
 		} 
-		query_posts($args);
 
+		query_posts($args);
 		
-		if ( have_posts() ) : 
+		if ( have_posts() && $unitsAvailable ) : 
 		    while ( have_posts() ) : the_post();
 		    //$post = $query->post;
 
@@ -79,7 +86,7 @@ function archive_listing_loop() {
             
             if ( '' != get_post_meta( $post->ID, '_listing_min_rate', true ) ) {
                 $loop .= sprintf( '<span class="listing-property-type">%s</span>', 'starting at' );
-				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', get_post_meta( $post->ID, '_listing_min_rate', true ) );
+				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0) );
 			}
 			
 			$loop .= sprintf( '</div><!-- .listing-thumb-meta --></div><!-- .listing-widget-thumb -->' );
@@ -116,10 +123,8 @@ function archive_listing_loop() {
 
 		endwhile;
 		endif;
-		
-        
  
-        wp_listings_paging_nav($args);
+        wp_listings_paging_nav($args,$paged);
 
 }
 
