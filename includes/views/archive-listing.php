@@ -54,7 +54,34 @@ function archive_listing_loop() {
         			'terms'             => get_query_var('status')
         		),
                 ),);
-		} 
+		}
+		if(get_query_var('features') != ''){   		
+    		$args += array('tax_query' => array(
+        		array(
+        			'taxonomy'          => 'status',
+        			'field'             => 'slug',
+        			'terms'             => get_query_var('features')
+        		),
+                ),);
+		}
+		if(get_query_var('locations') != ''){   		
+    		$args += array('tax_query' => array(
+        		array(
+        			'taxonomy'          => 'status',
+        			'field'             => 'slug',
+        			'terms'             => get_query_var('locations')
+        		),
+                ),);
+		}
+		if(get_query_var('property-types') != ''){   		
+    		$args += array('tax_query' => array(
+        		array(
+        			'taxonomy'          => 'status',
+        			'field'             => 'slug',
+        			'terms'             => get_query_var('property-types')
+        		),
+                ),);
+		}
 
 		query_posts($args);
 		
@@ -71,9 +98,9 @@ function archive_listing_loop() {
             
 			$loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="https://d2epyxaxvaz7xr.cloudfront.net/305x208/'.get_post_meta( $post->ID, '_listing_first_image', true ).'"></img> ' );
 
-			if ( '' != wp_listings_get_status() ) {
+			if ( wp_listings_get_featured()  ) {
     			// Banner across thumb
-				//$loop .= sprintf( '<span class="listing-status %s">%s</span>', strtolower(str_replace(' ', '-', wp_listings_get_status())), wp_listings_get_status() );
+				$loop .= sprintf( '<span class="listing-status %s">Featured</span>', strtolower(str_replace(' ', '-', wp_listings_get_status())), wp_listings_get_status() );
 			}
 
 			$loop .= sprintf( '<div class="listing-thumb-meta">' );

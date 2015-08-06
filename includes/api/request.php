@@ -10,7 +10,7 @@ class pluginApi{
 		$this->token = $token;
         $this->domain = $domain;		
         $this->endpoint = (strtoupper($domain) == 'HSR')?'http://hsr.trackstaging.info':'https://'.strtolower($domain).'.trackhs.com';
-        
+        $this->endpoint = 'http://hsr.jreed.trackhs.com';
 	}
 
 	public function getUnits(){
@@ -34,7 +34,7 @@ class pluginApi{
         $results = $wpdb->get_results("SELECT post_id as id FROM wp_postmeta WHERE _listing_domain != '".$domain."' GROUP BY post_id;");
         if(count($results)){
             foreach($results as $post){
-                $wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post->id."' ;");
+                $wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post->id."' AND meta_key != '_thumbnail_id' ;");
                 $wpdb->query("DELETE FROM wp_posts WHERE id = '".$post->id."' ;"); 
             }     
         }
@@ -59,7 +59,7 @@ class pluginApi{
 			if($post->post_id > 0){
     			$unitsUpdated++;
     			$post_id = $post->post_id;
-    			$wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post_id."';");
+    			$wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post_id."' AND meta_key != '_thumbnail_id'  ;");
     			$wpdb->query( $wpdb->prepare( 
                 	"
                 		INSERT INTO $wpdb->postmeta

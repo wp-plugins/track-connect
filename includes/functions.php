@@ -138,6 +138,29 @@ function wp_listings_get_status($post_id = null) {
 }
 
 /**
+ * Get featured status
+ */
+function wp_listings_get_featured($post_id = null) {
+
+	if ( null == $post_id ) {
+		global $post;
+		$post_id = $post->ID;
+	}
+
+	$listing_status = wp_get_object_terms($post_id, 'status');
+
+	if ( empty($listing_status) || is_wp_error($listing_status) ) {
+		return;
+	}
+
+	foreach($listing_status as $term) {
+		if ( $term->name == 'Featured' ) {
+			return true;
+		}
+	}
+}
+
+/**
  * Displays the property type (residential, condo, comemrcial, etc) of a listing
  */
 function wp_listings_get_property_types($post_id = null) {

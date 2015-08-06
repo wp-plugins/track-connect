@@ -41,7 +41,7 @@ function single_listing_post_content() {
     $options = get_option('plugin_wp_listings_settings');
     $trackServer = (strtoupper($options['wp_listings_domain']) == 'HSR')?"trackstaging.info":"trackhs.com";
     $imagesArray = json_decode(get_post_meta( $post->ID, '_listing_images')[0]);
-    $amenitiesArray = json_decode(get_post_meta( $post->ID, '_listing_amenities')[0])
+    $amenitiesArray = json_decode(get_post_meta( $post->ID, '_listing_amenities')[0]);
 	?>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <style>
@@ -206,17 +206,18 @@ function single_listing_post_content() {
     			</div><!-- #listing-details -->
                 
                 <?php if(count($amenitiesArray)): ?>
-                <div id="listing-amenities">
-                   <ul class="amenities" >
-                   <?php foreach($amenitiesArray as $amenity){
-                        if($amenity->type && $amenity->type == 'boolean' && $amenity->number == 1){ $val =  $amenity->name; }
-                        if($amenity->type && $amenity->type == 'text' && $amenity->number > 0){ $val = $amenity->name . ': '.$amenity->number; }
-                        if(!$amenity->type){ $val = $amenity->name; }
-                        if($val == ''){ continue; };
-                        echo '<li>●'.$val.'</li>';
-                   } ?> 
-                   </ul>
-                </div>
+                    <div id="listing-amenities">
+                        <ul class="amenities" >
+                        <?php foreach($amenitiesArray as $amenity){
+                            $val = '';
+                            if($amenity->type == 'boolean' && $amenity->number == 1){ $val =  $amenity->name; }
+                            if($amenity->type == 'text' && $amenity->number > 0){ $val = $amenity->name . ': '.$amenity->number; }
+                            if(!$amenity->type){ $val = $amenity->name; }
+                            if($val == ''){ continue; };
+                            echo '<li>●'.$val.'</li>';
+                        } ?> 
+                        </ul>
+                    </div>
                 <?php endif; ?>
                 
     			<?php if (get_post_meta( $post->ID, '_listing_gallery', true) != '') { ?>

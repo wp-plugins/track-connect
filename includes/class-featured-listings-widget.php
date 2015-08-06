@@ -92,8 +92,8 @@ class WP_Listings_Featured_Listings_Widget extends WP_Widget {
 
 				$loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), get_the_post_thumbnail( $post->ID, $instance['image_size'] ) );
 
-				if ( '' != wp_listings_get_status() ) {
-					$loop .= sprintf( '<span class="listing-status %s">%s</span>', strtolower(str_replace(' ', '-', wp_listings_get_status())), wp_listings_get_status() );
+				if ( wp_listings_get_featured()  ) {
+					$loop .= sprintf( '<span class="listing-status %s">Featured</span>', strtolower(str_replace(' ', '-', wp_listings_get_status())), wp_listings_get_status() );
 				}
 
 				$loop .= sprintf( '<div class="listing-thumb-meta">' );
