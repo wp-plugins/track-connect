@@ -101,7 +101,7 @@ function archive_listing_loop() {
 			$loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="https://d2epyxaxvaz7xr.cloudfront.net/305x208/'.get_post_meta( $post->ID, '_listing_first_image', true ).'"></img> ' );
             
             if($firstImage == '' || $firstImage === null){
-                $loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="'.plugins_url('images/placeholder.jpg', __FILE__).'">' );  
+                $loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="http://placehold.it/305x208">' );  
             }
             
 			if ( wp_listings_get_featured()  ) {
