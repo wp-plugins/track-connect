@@ -3,7 +3,7 @@ Contributors: trackhs
 Tags: trackpm, track sync, track hs, track
 Requires at least: 3.7
 Tested up to: 4.2.3
-Stable tag: 1.3.6
+Stable tag: 1.3.7
 
 Creates and syncs listing-type posts from TRACK PM, a cloud-based property management system (www.trackhs.com).
 

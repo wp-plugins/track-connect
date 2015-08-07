@@ -205,7 +205,9 @@ class pluginApi{
         
 		$unitArray = [];
 		foreach(json_decode($units['body'])->response as $unit){
-            $unitArray[] = $unit;
+    		$query = $wpdb->get_row("SELECT post_id FROM wp_postmeta WHERE meta_key = '_listing_unit_id' AND meta_value = '".$unit."' LIMIT 1; ");
+            $unitArray[] = $query->post_id;
+
         }
 
         return $unitArray;
