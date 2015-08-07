@@ -19,7 +19,7 @@ if($checkin && $checkout){
     $checkAvailability = true;
     require_once( __DIR__ . '/../api/request.php' );
     $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
-    $availableUnits = $request->getAvailableUnits($checkin,$checkout,$bedrooms);    
+    $availableUnits = $request->getAvailableUnits($checkin,$checkout,false);    
 }
 
 function archive_listing_loop() {
@@ -85,6 +85,7 @@ function archive_listing_loop() {
 
 		query_posts($args);
 		
+
 		if ( have_posts() && $unitsAvailable ) : 
 		    while ( have_posts() ) : the_post();
 		    //$post = $query->post;
@@ -95,9 +96,14 @@ function archive_listing_loop() {
             
 			$count++; // add 1 to counter on each loop
 			$first = ($count == 1) ? 'first' : ''; // if counter is 1 add class of first
+            $firstImage = get_post_meta( $post->ID, '_listing_first_image', true );
             
 			$loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="https://d2epyxaxvaz7xr.cloudfront.net/305x208/'.get_post_meta( $post->ID, '_listing_first_image', true ).'"></img> ' );
-
+            
+            if($firstImage == '' || $firstImage === null){
+                $loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="'.plugins_url('images/placeholder.jpg', __FILE__).'">' );  
+            }
+            
 			if ( wp_listings_get_featured()  ) {
     			// Banner across thumb
 				$loop .= sprintf( '<span class="listing-status %s">Featured</span>', strtolower(str_replace(' ', '-', wp_listings_get_status())), wp_listings_get_status() );
@@ -149,6 +155,9 @@ function archive_listing_loop() {
 			}
 
 		endwhile;
+		
+		else:
+		    echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
 		endif;
         
         if($unitsAvailable){
