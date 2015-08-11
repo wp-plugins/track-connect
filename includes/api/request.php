@@ -198,11 +198,11 @@ class pluginApi{
     			'token'     => $this->token,
 			    'checkin'   => $checkin, 
 			    'checkout'  => $checkout,
-			    'bedrooms'  => $bedrooms
+			    'bedrooms'  => false
 			    )
 			)
         );
-        
+
 		$unitArray = [];
 		foreach(json_decode($units['body'])->response as $unit){
     		$query = $wpdb->get_row("SELECT post_id FROM wp_postmeta WHERE meta_key = '_listing_unit_id' AND meta_value = '".$unit."' LIMIT 1; ");

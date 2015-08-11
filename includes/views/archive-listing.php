@@ -33,7 +33,7 @@ function archive_listing_loop() {
             echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
             $unitsAvailable = false;
         }
-                
+
 		// Start the Loop.	
 		$paged = (get_query_var('paged')) ? intval(get_query_var('paged')) : 1;
 		$args = array('post_type'=> 'listing','posts_per_page'=> 9);
@@ -58,7 +58,7 @@ function archive_listing_loop() {
 		if(get_query_var('features') != ''){   		
     		$args += array('tax_query' => array(
         		array(
-        			'taxonomy'          => 'status',
+        			'taxonomy'          => 'features',
         			'field'             => 'slug',
         			'terms'             => get_query_var('features')
         		),
@@ -67,7 +67,7 @@ function archive_listing_loop() {
 		if(get_query_var('locations') != ''){   		
     		$args += array('tax_query' => array(
         		array(
-        			'taxonomy'          => 'status',
+        			'taxonomy'          => 'locations',
         			'field'             => 'slug',
         			'terms'             => get_query_var('locations')
         		),
@@ -76,7 +76,7 @@ function archive_listing_loop() {
 		if(get_query_var('property-types') != ''){   		
     		$args += array('tax_query' => array(
         		array(
-        			'taxonomy'          => 'status',
+        			'taxonomy'          => 'property-types',
         			'field'             => 'slug',
         			'terms'             => get_query_var('property-types')
         		),
@@ -157,7 +157,7 @@ function archive_listing_loop() {
 		endwhile;
 		
 		else:
-		    echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
+		    echo '<div align="center" style="padding:25px;">No units are available with the selected filters.</div>';
 		endif;
         
         if($unitsAvailable){

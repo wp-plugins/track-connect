@@ -6,7 +6,7 @@
 	Author: Track HS
 	Author URI: http://www.trackhs.com
 
-	Version: 1.3.7
+	Version: 1.3.8
 
 	License: GNU General Public License v2.0 (or later)
 	License URI: http://www.opensource.org/licenses/gpl-license.php
