@@ -46,16 +46,19 @@ class WP_Listings_Search_Widget extends WP_Widget {
         }
         echo '</select>';
         
-        /*
+        
 		foreach ( $listings_taxonomies as $tax => $data ) {
 			if ( ! isset( $instance[$tax] ) || ! $instance[$tax] )
-				continue;
+				//continue;         
 
 			$terms = get_terms( $tax, array( 'orderby' => 'count', 'order' => 'DESC', 'number' => 100, 'hierarchical' => false ) );
 			if ( empty( $terms ) )
 				continue;
-
+                
 			$current = ! empty( $wp_query->query_vars[$tax] ) ? $wp_query->query_vars[$tax] : '';
+			if ( $tax != 'locations'){
+                continue;
+            }
 			echo "<select name='$tax' id='$tax' class='wp-listings-taxonomy'>\n\t";
 			echo '<option value="" ' . selected( $current == '', true, false ) . ">{$data['labels']['name']}</option>\n";
 			foreach ( (array) $terms as $term )
@@ -63,7 +66,7 @@ class WP_Listings_Search_Widget extends WP_Widget {
 
 			echo '</select>';
 		}
-        */
+        
         
 		echo '<div class="btn-search"><button type="submit" class="searchsubmit"><i class="fa fa-search"></i><span class="button-text">'. esc_attr( $instance['button_text'] ) .'</span></button></div>';
 		echo '<div class="clear"></div>

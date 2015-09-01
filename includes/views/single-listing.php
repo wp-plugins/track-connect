@@ -19,9 +19,11 @@ function enqueue_single_listing_scripts() {
 	wp_enqueue_style( 'wp-listings-single' );
 	wp_enqueue_style( 'font-awesome' );
 	wp_enqueue_style( 'slideshow' );
+	wp_enqueue_style( 'daterange-picker' );
 	wp_enqueue_script( 'jquery-validate', array('jquery'), true, true );
 	wp_enqueue_script( 'jquery-slideshow', array('jquery'), true, true );
 	wp_enqueue_script( 'jquery-slideshow-settings', array('jquery'), true, true );
+	wp_enqueue_script( 'daterange-picker', array('jquery'), true, true );
 	wp_enqueue_script( 'fitvids', array('jquery'), true, true );
 	wp_enqueue_script( 'wp-listings-single', array('jquery, jquery-ui-tabs', 'jquery-validate'), true, true );
 }
@@ -42,18 +44,44 @@ function single_listing_post_content() {
     $trackServer = (strtoupper($options['wp_listings_domain']) == 'HSR')?"trackstaging.info":"trackhs.com";
     $imagesArray = json_decode(get_post_meta( $post->ID, '_listing_images')[0]);
     $amenitiesArray = json_decode(get_post_meta( $post->ID, '_listing_amenities')[0]);
+    $unit_id = get_post_meta( $post->ID, '_listing_unit_id', true );
+    $checkin = ($_REQUEST['checkin'])? $_REQUEST['checkin']:false;
+    $checkout = ($_REQUEST['checkout'])? $_REQUEST['checkout']:false;
+    
+    require_once( __DIR__ . '/../api/request.php' );
+    $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
+    $unavailableDates = $request->getReservedDates($unit_id); 
+    $endpoint = $request->getEndPoint();
+    
+    $dateRange = '';
+    if($checkin && $checkout){
+        $dateRange = date('m/d/Y', strtotime($checkin)) . ' to ' . date('m/d/Y', strtotime($checkout));
+    }
 	?>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<!-- Include Required Prerequisites -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        
     <style>
+    .quote_wrapper {
+    	width: 30%;
+    	padding: 25px;
+    	float: left;
+    }
     .slide_wrapper {
-    	width: 70%;
+    	width: 50%;
     	margin: 0 auto;
+    	float: left;
     }
     @media only screen and (max-device-width: 800px), screen and (max-width: 800px) {
       .slide_wrapper {
         width: 100%;
         margin: 75px;
-      }  
+      } 
+      .quote_wrapper {
+    	width: 100%;
+    	margin: 0 auto;
+      } 
     }
     .slide_block {
     	width: 100%;
@@ -69,6 +97,19 @@ function single_listing_post_content() {
         -webkit-column-gap: 20px;
         column-count: 4;
         column-gap: 20px;
+    }
+    .date-picker-wrapper {       
+       z-index: 100000 !important; 
+    }
+    .daterange {
+        width: 100% !important;
+        
+    }
+    .quote-table tbody{
+        width: 100%;
+    }
+    .alnright {
+        text-align: right;
     }
     </style>
     
@@ -132,14 +173,186 @@ function single_listing_post_content() {
     		</article>
         </section> 
             
-    	                             
+    	
+        <section class="quote_wrapper">
+            <h4>Reservation Quote</h4>
+            <form action="<?=$endpoint?>/irm/checkout/">
+            <input type="hidden" id="checkin_date" name="checkin" value="<?=$checkin?>" >
+            <input type="hidden" id="checkout_date" name="checkout" value="<?=$checkout?>" >
+            <input type="hidden" id="cid" name="cid" value="<?=$unit_id?>">
+            <input type="text" name="daterange" id="daterange" placeholder="Select dates..." size="48" value="<?=$dateRange?>"><br>
+            <div class="adults">
+                <select class="persons" data-id="1" name="person[]">
+                    <option>1</option>
+                    <option selected="">2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select> &nbsp; Adults
+            </div>
+            <div class="children">
+                <select class="persons" data-id="2" name="person[]">
+                    <option>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select> &nbsp; Children
+            </div>
             
+            <div id="stay-messages">
+                
+            </div>
+            <div id="loading-img" align="center" style="display: none;">
+                <img src="/wp-content/plugins/track-connect/images/ajax-loader.gif">
+            </div>
+            <div id="breakdown-summary" style="display: none; width: 100%; padding-top: 15px;">
+                <table class="quote-table">
+                    <tbody>
+                    <tr id="nightly-charges-row">
+                        <td>Total Rent</td>
+                        <td class='alnright' id="nightly-charges">  
+                        </td>
+                    </tr>                     
+
+                    <tr>
+                        <td>Service Fees</td>
+                        <td class='alnright' id="reservation-charges">    
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Taxes</td>
+                        <td class='alnright'><span id="taxes"></span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Grand Total</td>
+                        <td class='alnright'>
+                            <strong id="grand-total"></strong>
+                        </td>
+                    </tr>
+                    
+                    <tr id="deposit-policy">
+                        <td>Deposit Due</td>
+                        <td class='alnright'>
+                            <strong id="deposit-total"></strong>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div align="center">
+                    <button type="submit" class="btn btn-booking">Book Now</button>
+                </div>
+            </div>
+        </section>
+        
+        <script>
+        $(function()
+        {   
+            function stringifyTomorrow() {
+               var today = moment();
+               var tomorrow = today.add('days', 1);
+               return moment(today).format("YYYY-MM-DD");
+            }
+            $('#daterange').dateRangePicker(
+        	{
+        		startOfWeek: 'sunday',
+            	separator : ' to ',
+            	format: 'MM/DD/YYYY',
+            	customTopBar: '<b>Please select a Check In and Check Out date...</b>',
+            	autoClose: true,
+            	stickyMonths: true,
+            	startDate: moment().format('MM/DD/YYYY'),
+            	beforeShowDay: function(t)
+            	{
+            		var valid = !(moment(t).format("YYYY-MM-DD") < stringifyTomorrow() <?php 
+                    if(count($unavailableDates)){ 
+                		foreach($unavailableDates as $date){
+                    		echo ' || moment(t).format("YYYY-MM-DD") == "'.$date.'" ';
+                		}
+                    }?>);
+            		var _class = '';
+            		var _tooltip = valid ? '' : 'Unavailable';
+            		return [valid,_class,_tooltip];
+            	}
+        
+        	}).bind('datepicker-change',function(event,obj)
+            {
+            	/* This event will be triggered when second date is selected */
+            	$('#checkin_date').val(moment(obj.date1).format("YYYY-MM-DD"));
+            	$('#checkout_date').val(moment(obj.date2).format("YYYY-MM-DD"));
+            	
+            	quoteReservation();
+            });
+        	
+        	// Quote Method
+        	<?php if($checkin > 0 && $checkout > $checkin){ ?>
+            quoteReservation();
+            <?php } ?>
+    
+            // Update on change
+            $('.persons').change(function () {
+                quoteReservation();
+            });
+    
+            function quoteReservation() {
+                var messages = $('#stay-messages').empty();
+                $('#breakdown-summary').hide();
+                $('#loading-img').show();
+                // Encode Persons
+                var persons = {};
+                $('.persons').each(function () {
+                    persons[$(this).data('id')] = $(this).val();
+                });
+    
+                $.ajax('/wp-admin/admin-ajax.php', {
+                    type: "POST",
+                    dataType: 'json',
+                    data: {
+                        action: 'quote_request',
+                        cid: '<?=$unit_id?>',
+                        checkin: moment($('#checkin_date').val()).format("YYYY-MM-DD"),
+                        checkout: moment($('#checkout_date').val()).format("YYYY-MM-DD"),
+                        persons: persons
+                    },
+                    success: function (d) {
+                        $('#loading-img').hide();
+                        $('#breakdown-summary').show();
+                        $('#nightly-charges').html('$'+d.data.nightlyRates);
+                        $('#reservation-charges').html('$'+d.data.reservationCharges);
+                        $('#taxes').html('$'+d.data.taxes);
+                        $('#grand-total').html('$'+d.data.grandTotal);
+    
+                        $('#deposit-policy').hide();
+                        if ((d.data.depositType != 'Guarantee')) {
+                            $('#deposit-policy').show();
+                            $('#deposit-total').html('$'+d.data.depositTotal);
+                        }
+    
+                        //completeButton.removeAttr('disabled');
+                    }
+                });
+            }
+        });
+        </script>                             
     		
     
     		<div id="listing-tabs" class="listing-data">
     
     			<ul>
-        			<li><a href="#listing-availability">Availability</a></li>
+        			<!--<li><a href="#listing-availability">Availability</a></li>-->
         			
     				<li><a href="#listing-description">Description</a></li>
     
@@ -163,10 +376,12 @@ function single_listing_post_content() {
     				-->
     			</ul>
                 
+                <!--
                 <div id="listing-availability" itemprop="availability">
                     <iframe frameborder="0" width="100%" height="550px" src="http://<?=$options['wp_listings_domain']?>.<?=$trackServer?>/api/vacation_rentals/index.php?cid=<?=get_post_meta( $post->ID, '_listing_unit_id', true )?>&domainweb=<?=$options['wp_listings_domain']?>&online_res=1"></iframe>
                 </div>
-            
+                --> 
+                
     			<div id="listing-description" itemprop="description">
     				<?php the_content( __( 'View more <span class="meta-nav">&rarr;</span>', 'wp_listings' ) ); ?>
     			</div><!-- #listing-description -->
@@ -180,21 +395,21 @@ function single_listing_post_content() {
     					echo '<table class="listing-details">';
     
                         echo '<tbody class="left">';
-                        echo '<tr class="wp_listings_listing_price"><td class="label">Rates:</td><td>$'.number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0) . ' to $' . number_format(get_post_meta( $post->ID, '_listing_max_rate', true ),0) .'</td></tr>';
+                        echo '<tr class="wp_listings_listing_price"><td class="label">Rates</td><td>$'.number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0) . ' to $' . number_format(get_post_meta( $post->ID, '_listing_max_rate', true ),0) .'</td></tr>';
                         echo '<div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">';
-                        echo '<tr class="wp_listings_listing_address"><td class="label">Address:</td><td itemprop="streetAddress">'.get_post_meta( $post->ID, '_listing_address', true) .'</td></tr>';
-                        echo '<tr class="wp_listings_listing_city"><td class="label">City:</td><td itemprop="addressLocality">'.get_post_meta( $post->ID, '_listing_city', true) .'</td></tr>';
-                        echo '<tr class="wp_listings_listing_state"><td class="label">State:</td><td itemprop="addressRegion">'.get_post_meta( $post->ID, '_listing_state', true) .'</td></tr>';
-                        echo '<tr class="wp_listings_listing_zip"><td class="label">Zip:</td><td itemprop="postalCode">'.get_post_meta( $post->ID, '_listing_zip', true) .'</td></tr>';
+                        //echo '<tr class="wp_listings_listing_address"><td class="label">Address</td><td itemprop="streetAddress">'.get_post_meta( $post->ID, '_listing_address', true) .'</td></tr>';
+                        echo '<tr class="wp_listings_listing_city"><td class="label">City</td><td itemprop="addressLocality">'.get_post_meta( $post->ID, '_listing_city', true) .'</td></tr>';
+                        echo '<tr class="wp_listings_listing_state"><td class="label">State</td><td itemprop="addressRegion">'.get_post_meta( $post->ID, '_listing_state', true) .'</td></tr>';
+                        //echo '<tr class="wp_listings_listing_zip"><td class="label">Zip</td><td itemprop="postalCode">'.get_post_meta( $post->ID, '_listing_zip', true) .'</td></tr>';
                         echo '</div>';
-                        echo '<tr class="wp_listings_listing_mls"><td class="label">Max Occupancy:</td><td>'.get_post_meta( $post->ID, '_listing_occupancy', true) .'</td></tr>';
+                        echo '<tr class="wp_listings_listing_mls"><td class="label">Max Occupancy</td><td>'.get_post_meta( $post->ID, '_listing_occupancy', true) .'</td></tr>';
                         echo '</tbody>';
     
     					echo '<tbody class="right">';
     					foreach ( (array) $details_instance->property_details['col2'] as $label => $key ) {
     						$detail_value = esc_html( get_post_meta($post->ID, $key, true) );
     						if (! empty( $detail_value ) ) :
-    							printf( $pattern, $key, esc_html( $label ), $detail_value );
+    							printf( $pattern, $key, esc_html( str_replace(":", "", $label)  ), $detail_value );
     						endif;
     					}
     					echo '</tbody>';

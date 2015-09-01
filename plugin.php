@@ -6,7 +6,7 @@
 	Author: Track HS
 	Author URI: http://www.trackhs.com
 
-	Version: 1.3.8
+	Version: 1.4
 
 	License: GNU General Public License v2.0 (or later)
 	License URI: http://www.opensource.org/licenses/gpl-license.php
@@ -54,7 +54,7 @@ function wp_listings_init() {
 	global $_wp_listings, $_wp_listings_taxonomies, $_wp_listings_templates;
 
 	define( 'WP_LISTINGS_URL', plugin_dir_url( __FILE__ ) );
-	define( 'WP_LISTINGS_VERSION', '1.1' );
+	define( 'WP_LISTINGS_VERSION', '1.4' );
 
 	/** Load textdomain for translation */
 	load_plugin_textdomain( 'wp_listings', false, basename( dirname( __FILE__ ) ) . '/languages/' );
@@ -81,6 +81,7 @@ function wp_listings_init() {
 		wp_register_script( 'jquery-validate', WP_LISTINGS_URL . 'includes/js/jquery.validate.min.js', array('jquery'), null, true ); // enqueued only on single listings
 		wp_register_script( 'jquery-slideshow', WP_LISTINGS_URL . 'includes/js/slippry.min.js', array('jquery'), null, true ); // enqueued only on single listings
 		wp_register_script( 'jquery-slideshow-settings', WP_LISTINGS_URL . 'includes/js/slideshow.js', array('jquery'), null, true ); // enqueued only on single listings
+		wp_register_script( 'daterange-picker', WP_LISTINGS_URL . 'includes/js/jquery.daterangepicker.js', array('jquery'), null, true ); // enqueued only on single listings
 		wp_register_script( 'fitvids', '//cdnjs.cloudflare.com/ajax/libs/fitvids/1.1.0/jquery.fitvids.min.js', array('jquery'), null, true ); // enqueued only on single listings
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'jquery-ui-tabs', array('jquery') );
@@ -100,6 +101,9 @@ function wp_listings_init() {
         
         /** Register Slippry CSS */
 		wp_register_style('slideshow', WP_LISTINGS_URL . '/includes/css/slippry.css', '', null, 'all');
+		
+		/** Register Slippry CSS */
+		wp_register_style('daterange-picker', WP_LISTINGS_URL . '/includes/css/daterangepicker.css', '', null, 'all');
 		
 		/** Register Properticons but don't enqueue them */
 		wp_register_style('properticons', '//s3.amazonaws.com/properticons/css/properticons.css', '', null, 'all');
@@ -153,6 +157,30 @@ function wp_listings_init() {
 	// 	echo $template;
 	// 	echo get_post_meta( $post->ID, '_wp_post_template', true );
 	// }
+	
+	
+}
+
+/**
+ * Quote AJAX from unit page
+ *
+ * @since 1.0
+ */
+add_action( 'wp_ajax_quote_request', 'get_quote' );
+add_action( 'wp_ajax_nopriv_quote_request', 'get_quote' );
+    
+function get_quote(){	
+    $options = get_option('plugin_wp_listings_settings');
+    $unitId = $_POST['cid'];
+    $checkin = $_POST['checkin'];
+    $checkout = $_POST['checkout'];
+    $persons = $_POST['persons'];
+
+    require_once( __DIR__ . '/includes/api/request.php' );
+    $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
+    $quote =  $request->getQuote($unitId,$checkin,$checkout,$persons);  
+    
+	wp_send_json( $quote );
 }
 
 /**

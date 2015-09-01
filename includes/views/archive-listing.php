@@ -14,8 +14,10 @@ $checkout = ($_REQUEST['checkout'])? $_REQUEST['checkout']:false;
 $bedrooms = ($_REQUEST['bedrooms'])? $_REQUEST['bedrooms']:false;
 $availableUnits = false;
 $checkAvailability = false;
+$linkString = '';
 
 if($checkin && $checkout){
+    $linkString = "?checkin=$checkin&checkout=$checkout";
     $checkAvailability = true;
     require_once( __DIR__ . '/../api/request.php' );
     $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
@@ -84,7 +86,6 @@ function archive_listing_loop() {
 		}
 
 		query_posts($args);
-		
 
 		if ( have_posts() && $unitsAvailable ) : 
 		    while ( have_posts() ) : the_post();
@@ -93,15 +94,20 @@ function archive_listing_loop() {
 		    $unitId = get_post_meta( $post->ID, '_listing_unit_id', true );
 		    $bedroomSize = get_post_meta( $post->ID, '_listing_bedrooms', true );
 		    
+		    $link = get_permalink();
+		    if($checkin && $checkout){
+                $link = add_query_arg( 'checkin', $checkin, get_permalink() );
+                $link = add_query_arg( 'checkout', $checkout, $link );
+            }
             
 			$count++; // add 1 to counter on each loop
 			$first = ($count == 1) ? 'first' : ''; // if counter is 1 add class of first
             $firstImage = get_post_meta( $post->ID, '_listing_first_image', true );
             
-			$loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="https://d2epyxaxvaz7xr.cloudfront.net/305x208/'.get_post_meta( $post->ID, '_listing_first_image', true ).'"></img> ' );
+			$loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', $link, '<img src="https://d2epyxaxvaz7xr.cloudfront.net/305x208/'.get_post_meta( $post->ID, '_listing_first_image', true ).'"></img> ' );
             
             if($firstImage == '' || $firstImage === null){
-                $loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', get_permalink(), '<img src="http://placehold.it/305x208">' );  
+                $loop = sprintf( '<div class="listing-widget-thumb"><a href="%s" class="listing-image-link">%s</a>', $link, '<img src="http://placehold.it/305x208">' );  
             }
             
 			if ( wp_listings_get_featured()  ) {
@@ -132,7 +138,7 @@ function archive_listing_loop() {
 				//$loop .= sprintf( '<span class="listing-open-house">%s, %s</span>', get_post_meta( $post->ID, '_listing_city', true ), get_post_meta( $post->ID, '_listing_state', true ) );
 			}
 
-			$loop .= sprintf( '<div class="listing-widget-details"><h3 class="listing-title"><a href="%s">%s</a></h3>', get_permalink(), get_the_title() );
+			$loop .= sprintf( '<div class="listing-widget-details"><h3 class="listing-title"><a href="%s">%s</a></h3>', $link, get_the_title() );
 			//$loop .= sprintf( '<p class="listing-address"><span class="listing-address">%s</span><br />', wp_listings_get_address() );
 			//$loop .= sprintf( '<span class="listing-city-state-zip">%s, %s %s</span></p>', wp_listings_get_city(), wp_listings_get_state(), get_post_meta( $post->ID, '_listing_zip', true ) );
 			$loop .= sprintf( '<p><span style="margin-left:12px;">%s, %s</span></p>', get_post_meta( $post->ID, '_listing_city', true ), get_post_meta( $post->ID, '_listing_state', true ) );
@@ -145,7 +151,7 @@ function archive_listing_loop() {
 
 			$loop .= sprintf('</div><!-- .listing-widget-details -->');
 
-			$loop .= sprintf( '<a href="%s" class="button btn-primary more-link">%s</a>', get_permalink(), __( 'View Listing', 'wp_listings' ) );
+			$loop .= sprintf( '<a href="%s" class="button btn-primary more-link">%s</a>', $link, __( 'View Listing', 'wp_listings' ) );
 
 			/** wrap in div with column class, and output **/
 			printf( '<article id="post-%s" class="listing entry one-third %s"><div class="listing-wrap">%s</div><!-- .listing-wrap --></article><!-- article#post-## -->', get_the_id(), $first, apply_filters( 'wp_listings_featured_listings_widget_loop', $loop ) );

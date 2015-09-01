@@ -10,8 +10,13 @@ class pluginApi{
 		$this->token = $token;
         $this->domain = $domain;		
         $this->endpoint = (strtoupper($domain) == 'HSR')?'http://hsr.trackstaging.info':'https://'.strtolower($domain).'.trackhs.com';
+        //$this->endpoint = 'http://hsr.jreed.trackhs.com';
 	}
-
+    
+    public function getEndPoint(){
+        return $this->endpoint;
+    }
+    
 	public function getUnits(){
 		global $wpdb;
         
@@ -77,10 +82,12 @@ class pluginApi{
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
+                		( %d, %s, %s ),
                 		( %d, %s, %s )
                 	", 
                     array(
                         $post_id,'_listing_unit_id', $id,
+                        $post_id,'_listing_overview', $unit->overview,
                         $post_id,'_listing_bedrooms', $unit->rooms,
                         $post_id,'_listing_bathrooms', $unit->bath,
                         $post_id,'_listing_images', json_encode($unit->images),
@@ -93,7 +100,7 @@ class pluginApi{
                         $post_id,'_listing_min_rate', $unit->min_rate,
                         $post_id,'_listing_max_rate', $unit->max_rate,
                         $post_id,'_listing_domain', $domain,
-                        $post_id,'_listing_first_image', $unit->images[0]->url,
+                        $post_id,'_listing_first_image', $unit->images[0]->url
                     )
                 ));
                 
@@ -110,7 +117,13 @@ class pluginApi{
                       'post_name' => $this->slugify($unit->name),
                       'post_type' => 'listing',
                 );              
-                wp_update_post( $my_post ); 
+                wp_update_post( $my_post );
+                
+                // Create image
+                $image = $wpdb->get_row("SELECT post_id FROM wp_postmeta WHERE post_id = '".$post_id."' AND meta_key = '_thumbnail_id' LIMIT 1;");
+                if(!$image->post_id && $unit->images[0]->url && $unit->images[0]->url > ''){
+                    $this->createImage($post_id,$unit->images[0]->url);
+                }
                   
                 //Update the Status
                 $term = $wpdb->get_row("SELECT term_id FROM wp_terms WHERE name = 'Active' AND slug = 'active';");
@@ -153,10 +166,12 @@ class pluginApi{
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
+                		( %d, %s, %s ),
                 		( %d, %s, %s )
                 	", 
                     array(
                         $post_id,'_listing_unit_id', $id,
+                        $post_id,'_listing_overview', $unit->overview,
                         $post_id,'_listing_bedrooms', $unit->rooms,
                         $post_id,'_listing_bathrooms', $unit->bath,
                         $post_id,'_listing_images', json_encode($unit->images),
@@ -169,10 +184,16 @@ class pluginApi{
                         $post_id,'_listing_min_rate', $unit->min_rate,
                         $post_id,'_listing_max_rate', $unit->max_rate,
                         $post_id,'_listing_domain', $domain,
-                        $post_id,'_listing_first_image', $unit->images[0]->url,
+                        $post_id,'_listing_first_image', $unit->images[0]->url
                     )
                 ));
-  
+                
+                // Create image
+                $image = $wpdb->get_row("SELECT post_id FROM wp_postmeta WHERE post_id = '".$post_id."' AND meta_key = '_thumbnail_id' LIMIT 1;");
+                if(!$image->post_id && $unit->images[0]->url && $unit->images[0]->url > ''){
+                    $this->createImage($post_id,$unit->images[0]->url);
+                }
+                
                 //Create the Status    
                 $term = $wpdb->get_row("SELECT term_id FROM wp_terms WHERE name = 'Active' AND slug = 'active';");
                 $wpdb->query("INSERT INTO wp_term_relationships set 
@@ -212,7 +233,41 @@ class pluginApi{
 
         return $unitArray;
     }
+    
+    public function getReservedDates($unitId){
+		global $wpdb;
+		
+		$units = wp_remote_post($this->endpoint.'/api/wordpress/unavailable-dates/',
+		array(
+			'timeout'     => 500,
+			'body' => array( 
+    			'token'     => $this->token,
+			    'unit_id'   => $unitId
+			    )
+			)
+        );
 
+        return json_decode($units['body'])->response;
+    }
+    
+    public function getQuote($unitId,$checkin,$checkout,$persons){
+		
+		$quote = wp_remote_post($this->endpoint.'/api/wordpress/quote/',
+		array(
+			'timeout'     => 500,
+			'body' => array( 
+    			'token'     => $this->token,
+			    'cid'       => $unitId,
+			    'checkin'   => $checkin,
+			    'checkout'  => $checkout,
+			    'persons'   => $persons
+			    )
+			)
+        );
+
+        return json_decode($quote['body']);
+    }
+    
 	static public function slugify($text){
 		// replace non letter or digits by -
 		$text = preg_replace('~[^\\pL\d]+~u', '-', $text);
@@ -234,6 +289,50 @@ class pluginApi{
 		}
 
 		return $text;
+	}
+	
+	public function createImage($post_id,$url){
+    	// Add Featured Image to Post
+        $image_url  = $url; // Define the image URL here
+        $upload_dir = wp_upload_dir(); // Set upload folder
+        $image_data = file_get_contents($image_url); // Get image data
+        $filename   = basename($image_url); // Create image file name
+        
+        // Check folder permission and define file location
+        if( wp_mkdir_p( $upload_dir['path'] ) ) {
+            $file = $upload_dir['path'] . '/' . $filename;
+        } else {
+            $file = $upload_dir['basedir'] . '/' . $filename;
+        }
+        
+        // Create the image  file on the server
+        file_put_contents( $file, $image_data );
+        
+        // Check image file type
+        $wp_filetype = wp_check_filetype( $filename, null );
+        
+        // Set attachment data
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title'     => sanitize_file_name( $filename ),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        );
+        
+        // Create the attachment
+        $attach_id = wp_insert_attachment( $attachment, $file, $post_id );
+        
+        // Include image.php
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        
+        // Define attachment metadata
+        $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+        
+        // Assign metadata to attachment
+        wp_update_attachment_metadata( $attach_id, $attach_data );
+        
+        // And finally assign featured image to post
+        set_post_thumbnail( $post_id, $attach_id );
 	}
 
 }
