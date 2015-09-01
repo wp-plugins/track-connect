@@ -256,6 +256,7 @@ function single_listing_post_content() {
                     <button type="submit" class="btn btn-booking">Book Now</button>
                 </div>
             </div>
+            </form>
         </section>
         
         <script>
