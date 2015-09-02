@@ -94,11 +94,23 @@ function single_listing_post_content() {
         width: 100% !important;
         
     }
-    .quote-table tbody{
+    .quote-table{
         width: 100%;
     }
     .alnright {
         text-align: right;
+    }
+    #grand-total-row {
+        font-weight: 600;
+        text-decoration:underline;
+        border-bottom: 1px solid #000;
+    }
+    .alert-danger {
+        margin-top: -20px;
+        background-color: #d65f5f;
+        font-weight: 300;
+        padding: 15px;
+        color: white;
     }
     </style>
     
@@ -173,7 +185,7 @@ function single_listing_post_content() {
             <div class="extra-persons-box">
                 <div class="extra-person-box">
                     <label>Adults</label>
-                    <select class="persons" data-id="1" name="person[]" >
+                    <select class="persons" data-id="1" name="person[1]" >
                         <option>1</option>
                         <option selected="">2</option>
                         <option>3</option>
@@ -187,7 +199,7 @@ function single_listing_post_content() {
                     </select> &nbsp; 
                 </div><div class="extra-person-box">
                     <label>Children</label>
-                    <select class="persons" data-id="2" name="person[]" >
+                    <select class="persons" data-id="2" name="person[2]" >
                         <option>0</option>
                         <option>1</option>
                         <option>2</option>
@@ -203,13 +215,13 @@ function single_listing_post_content() {
                 </div>
             </div>
             
-            <div id="stay-messages">
+            <div id="quote-messages">
                 
             </div>
             <div id="loading-img" align="center" style="display: none;">
                 <img src="/wp-content/plugins/track-connect/images/ajax-loader.gif">
             </div>
-            <div id="breakdown-summary" style="display: none; width: 100%; padding-top: 15px;">
+            <div id="breakdown-summary" style="display: none; width: 100%;">
                 <table class="quote-table">
                     <tbody>
                     <tr id="nightly-charges-row">
@@ -229,7 +241,7 @@ function single_listing_post_content() {
                         <td class='alnright'><span id="taxes"></span></td>
                     </tr>
 
-                    <tr>
+                    <tr id="grand-total-row">
                         <td>Grand Total</td>
                         <td class='alnright'>
                             <strong id="grand-total"></strong>
@@ -244,7 +256,7 @@ function single_listing_post_content() {
                     </tr>
                     </tbody>
                 </table>
-                <div align="center">
+                <div align="center" style="margin-top: 10px;">
                     <button type="submit" class="btn btn-booking">Book Now</button>
                 </div>
             </div>
@@ -303,7 +315,8 @@ function single_listing_post_content() {
             });
     
             function quoteReservation() {
-                var messages = $('#stay-messages').empty();
+                $('#quote-messages').hide();
+                $('#quote-messages').empty();
                 $('#breakdown-summary').hide();
                 $('#loading-img').show();
                 // Encode Persons
@@ -324,19 +337,31 @@ function single_listing_post_content() {
                     },
                     success: function (d) {
                         $('#loading-img').hide();
-                        $('#breakdown-summary').show();
-                        $('#nightly-charges').html('$'+d.data.nightlyRates);
-                        $('#reservation-charges').html('$'+d.data.reservationCharges);
-                        $('#taxes').html('$'+d.data.taxes);
-                        $('#grand-total').html('$'+d.data.grandTotal);
-    
-                        $('#deposit-policy').hide();
-                        if ((d.data.depositType != 'Guarantee')) {
-                            $('#deposit-policy').show();
-                            $('#deposit-total').html('$'+d.data.depositTotal);
+                        if(!d.success) {
+                            $('#quote-messages').show();
+                            if(d.errors && d.errors.length) {
+                                for(var i = 0; i < d.errors.length; i++) {
+                                     $('#quote-messages').append('<p class="alert alert-danger">'+ d.errors[i]+'</p>');
+                                }
+                            }
+                            else {
+                                 $('#quote-messages').append('<p class="alert alert-danger">'+ d.message+'</p>');
+                            }
+                            return;
+
+                        }else{         
+                            $('#breakdown-summary').show();
+                            $('#nightly-charges').html('$'+d.data.nightlyRates);
+                            $('#reservation-charges').html('$'+d.data.reservationCharges);
+                            $('#taxes').html('$'+d.data.taxes);
+                            $('#grand-total').html('$'+d.data.grandTotal);
+        
+                            $('#deposit-policy').hide();
+                            if ((d.data.depositType != 'Guarantee')) {
+                                $('#deposit-policy').show();
+                                $('#deposit-total').html('$'+d.data.depositTotal);
+                            }
                         }
-    
-                        //completeButton.removeAttr('disabled');
                     }
                 });
             }
