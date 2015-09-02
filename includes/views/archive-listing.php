@@ -124,8 +124,9 @@ function archive_listing_loop() {
 			}
             
             if ( '' != get_post_meta( $post->ID, '_listing_min_rate', true ) ) {
+                $rate = str_replace(',', '', get_post_meta( $post->ID, '_listing_min_rate', true ));
                 $loop .= sprintf( '<span class="listing-property-type">%s</span>', 'starting at' );
-				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0) );
+				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', number_format($rate,0) );
 			}
 			
 			$loop .= sprintf( '</div><!-- .listing-thumb-meta --></div><!-- .listing-widget-thumb -->' );

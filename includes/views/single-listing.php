@@ -118,7 +118,9 @@ function single_listing_post_content() {
     		$listing_meta = sprintf( '<ul class="listing-meta">');
     
     		if ( '' != get_post_meta( $post->ID, '_listing_min_rate', true ) ) {
-    			$listing_meta .= sprintf( '<li class="listing-price">$%s to $%s / night</li>', number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0), number_format(get_post_meta( $post->ID, '_listing_max_rate', true ),0) );
+        		$rate1 = str_replace(',', '', get_post_meta( $post->ID, '_listing_min_rate', true ));
+        		$rate2 = str_replace(',', '', get_post_meta( $post->ID, '_listing_max_rate', true ));
+    			$listing_meta .= sprintf( '<li class="listing-price">$%s to $%s / night</li>', number_format($rate1,0), number_format($rate2,0) );
     		}
     
     		if ( '' != wp_listings_get_property_types() ) {
@@ -415,7 +417,7 @@ function single_listing_post_content() {
     					echo '<table class="listing-details">';
     
                         echo '<tbody class="left">';
-                        echo '<tr class="wp_listings_listing_price"><td class="label">Rates</td><td>$'.number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0) . ' to $' . number_format(get_post_meta( $post->ID, '_listing_max_rate', true ),0) .'</td></tr>';
+                        echo '<tr class="wp_listings_listing_price"><td class="label">Rates</td><td>$'.get_post_meta( $post->ID, '_listing_min_rate', true ) . ' to $' . get_post_meta( $post->ID, '_listing_max_rate', true ) .'</td></tr>';
                         echo '<div itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">';
                         //echo '<tr class="wp_listings_listing_address"><td class="label">Address</td><td itemprop="streetAddress">'.get_post_meta( $post->ID, '_listing_address', true) .'</td></tr>';
                         echo '<tr class="wp_listings_listing_city"><td class="label">City</td><td itemprop="addressLocality">'.get_post_meta( $post->ID, '_listing_city', true) .'</td></tr>';
