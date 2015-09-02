@@ -63,24 +63,18 @@ function single_listing_post_content() {
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
         
     <style>
-    .quote_wrapper {
-    	width: 30%;
-    	padding: 25px;
-    	float: left;
+    .adults {
+        width: 50%;
+        float: left;
     }
-    .slide_wrapper {
-    	width: 50%;
-    	margin: 0 auto;
-    	float: left;
+    .children {
+        width: 50%;
+        float: left;
     }
     @media only screen and (max-device-width: 800px), screen and (max-width: 800px) {
       .slide_wrapper {
         width: 100%;
         margin: 75px;
-      } 
-      .quote_wrapper {
-    	width: 100%;
-    	margin: 0 auto;
       } 
     }
     .slide_block {
@@ -174,15 +168,16 @@ function single_listing_post_content() {
         </section> 
             
     	
-        <section class="quote_wrapper">
-            <h4>Reservation Quote</h4>
+        <section class="quote_wrapper" id="quote_wrapper">
+            <h3 class="widget-title">Reservation Quote</h3>
             <form action="<?=$endpoint?>/irm/checkout/">
             <input type="hidden" id="checkin_date" name="checkin" value="<?=$checkin?>" >
             <input type="hidden" id="checkout_date" name="checkout" value="<?=$checkout?>" >
             <input type="hidden" id="cid" name="cid" value="<?=$unit_id?>">
             <input type="text" name="daterange" id="daterange" placeholder="Select dates..." size="48" value="<?=$dateRange?>"><br>
             <div class="adults">
-                <select class="persons" data-id="1" name="person[]">
+                <label>Adults</label>
+                <select class="persons" data-id="1" name="person[]" >
                     <option>1</option>
                     <option selected="">2</option>
                     <option>3</option>
@@ -193,10 +188,11 @@ function single_listing_post_content() {
                     <option>8</option>
                     <option>9</option>
                     <option>10</option>
-                </select> &nbsp; Adults
+                </select> &nbsp; 
             </div>
             <div class="children">
-                <select class="persons" data-id="2" name="person[]">
+                <label>Children</label>
+                <select class="persons" data-id="2" name="person[]" >
                     <option>0</option>
                     <option>1</option>
                     <option>2</option>
@@ -208,7 +204,7 @@ function single_listing_post_content() {
                     <option>8</option>
                     <option>9</option>
                     <option>10</option>
-                </select> &nbsp; Children
+                </select>
             </div>
             
             <div id="stay-messages">
@@ -262,6 +258,8 @@ function single_listing_post_content() {
         <script>
         $(function()
         {   
+            $("#quote_wrapper").prependTo(".wp-listings-search-sidebar");
+            
             function stringifyTomorrow() {
                var today = moment();
                var tomorrow = today.add('days', 1);
