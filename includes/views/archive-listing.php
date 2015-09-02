@@ -38,9 +38,9 @@ function archive_listing_loop() {
 
 		// Start the Loop.	
 		$paged = (get_query_var('paged')) ? intval(get_query_var('paged')) : 1;
-		$args = array('post_type'=> 'listing','posts_per_page'=> 9);
+		$args = array('post_type'=> 'listing','pagination' => 'false','posts_per_page' => '-1','order' => 'ASC','orderby'=> 'rand');
 		if(get_query_var('paged')){    		
-    		$args += array('paged' => $paged);
+    		//$args += array('paged' => $paged);
 		}
 		if($bedrooms > 0){    		
     		$args += array('meta_key' => '_listing_bedrooms','meta_value' => $bedrooms);
@@ -116,46 +116,29 @@ function archive_listing_loop() {
 			}
 
 			$loop .= sprintf( '<div class="listing-thumb-meta">' );
-
-			if ( '' != get_post_meta( $post->ID, '_listing_text', true ) ) {
-				$loop .= sprintf( '<span class="listing-text">%s</span>', get_post_meta( $post->ID, '_listing_text', true ) );
-			} elseif ( '' != wp_listings_get_property_types() ) {
-				$loop .= sprintf( '<span class="listing-property-type">%s</span>', wp_listings_get_property_types() );
-			}
             
             if ( '' != get_post_meta( $post->ID, '_listing_min_rate', true ) ) {
-                $rate = str_replace(',', '', get_post_meta( $post->ID, '_listing_min_rate', true ));
                 $loop .= sprintf( '<span class="listing-property-type">%s</span>', 'starting at' );
-				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', number_format($rate,0) );
+				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0) );
 			}
 			
 			$loop .= sprintf( '</div><!-- .listing-thumb-meta --></div><!-- .listing-widget-thumb -->' );
 
-			if ( '' != get_post_meta( $post->ID, '_listing_open_house', true ) ) {
-				//$loop .= sprintf( '<span class="listing-open-house">Open House: %s</span>', get_post_meta( $post->ID, '_listing_open_house', true ) );
-			}
-			
-			if ( '' != get_post_meta( $post->ID, '_listing_city', true ) && '' != get_post_meta( $post->ID, '_listing_state', true ) ) {
-				//$loop .= sprintf( '<span class="listing-open-house">%s, %s</span>', get_post_meta( $post->ID, '_listing_city', true ), get_post_meta( $post->ID, '_listing_state', true ) );
-			}
 
 			$loop .= sprintf( '<div class="listing-widget-details"><h3 class="listing-title"><a href="%s">%s</a></h3>', $link, get_the_title() );
-			//$loop .= sprintf( '<p class="listing-address"><span class="listing-address">%s</span><br />', wp_listings_get_address() );
-			//$loop .= sprintf( '<span class="listing-city-state-zip">%s, %s %s</span></p>', wp_listings_get_city(), wp_listings_get_state(), get_post_meta( $post->ID, '_listing_zip', true ) );
-			$loop .= sprintf( '<p><span style="margin-left:12px;">%s, %s</span></p>', get_post_meta( $post->ID, '_listing_city', true ), get_post_meta( $post->ID, '_listing_state', true ) );
-			//$loop .= sprintf( '<p><span style="margin-left:12px;">%s - %s</span></p>', get_post_meta( $post->ID, '_listing_min_rate', true ), get_post_meta( $post->ID, '_listing_max_rate', true ). ' per night' );
-			 
 
-			if ( '' != get_post_meta( $post->ID, '_listing_bedrooms', true ) || '' != get_post_meta( $post->ID, '_listing_bathrooms', true ) || '' != get_post_meta( $post->ID, '_listing_sqft', true )) {
-				$loop .= sprintf( '<ul class="listing-beds-baths-sqft"><li class="beds">%s<span>Beds</span></li> <li class="baths">%s<span>Baths</span></li> <li class="sqft">%s<span>Guests</span></li></ul>', get_post_meta( $post->ID, '_listing_bedrooms', true ), get_post_meta( $post->ID, '_listing_bathrooms', true ), get_post_meta( $post->ID, '_listing_occupancy', true )  );
-			}
-
+			$loop .= sprintf( '<p class="listing-information">%s BR / %s BA / %s PPL - %s, %s</p>', get_post_meta( $post->ID, '_listing_bedrooms', true ), get_post_meta( $post->ID, '_listing_bathrooms', true ), get_post_meta( $post->ID, '_listing_occupancy', true ),  get_post_meta( $post->ID, '_listing_city', true ), get_post_meta( $post->ID, '_listing_state', true ) );
+            
+            $loop .= sprintf( '<p class="listing-overview">%s</p>', get_post_meta( $post->ID, '_listing_overview', true ) );
+            
+            //$loop .= sprintf( '<span style="margin-left:14px;"><a href="%s" class="button btn-primary">%s</a><span>', $link, __( 'View Property', 'wp_listings' ) );
+            
 			$loop .= sprintf('</div><!-- .listing-widget-details -->');
 
-			$loop .= sprintf( '<a href="%s" class="button btn-primary more-link">%s</a>', $link, __( 'View Listing', 'wp_listings' ) );
+			
 
 			/** wrap in div with column class, and output **/
-			printf( '<article id="post-%s" class="listing entry one-third %s"><div class="listing-wrap">%s</div><!-- .listing-wrap --></article><!-- article#post-## -->', get_the_id(), $first, apply_filters( 'wp_listings_featured_listings_widget_loop', $loop ) );
+			printf( '<article id="post-%s" class="listing entry listing-box %s"><div class="listing-wrap">%s</div><!-- .listing-wrap --></article><!-- article#post-## -->', get_the_id(), $first, apply_filters( 'wp_listings_featured_listings_widget_loop', $loop ) );
 
 			if ( 3 == $count ) { // if counter is 3, reset to 0
 				$count = 0;
@@ -175,7 +158,61 @@ function archive_listing_loop() {
 
 
 get_header(); ?>
-
+    
+    <style>
+    .listing-widget-thumb {
+        width: 30%; 
+        float:left;
+        max-width: 250px;
+    }
+    .listing-widget-details {
+        margin-top: -18px;
+        width: 70%;
+        float:left;
+        border: 0px !important;
+        background: none !important;
+    }   
+    .listing-box {
+        width: 100%;
+        height: 225px;
+        padding-bottom:20px; 
+        padding-left:20px; 
+        padding-top:12px;
+    }
+    .listing-information {
+        padding-left: 12px;
+    }
+    .listing-overview {
+        padding-left: 12px;
+    }
+    .listing-title{
+        padding-left: 12px !important;
+    }
+        
+     @media only screen and (max-device-width: 800px), screen and (max-width: 800px) {
+        .listing-widget-thumb {
+            width: 100%;
+        }
+        .listing-widget-details {
+            width: 100%;
+        } 
+        .listing-box {
+            margin-bottom:20px; 
+        }
+        .listing-information {
+            padding-left: 0px;
+        }
+        .listing-title{
+            padding-left: 0px !important;
+        }
+        .listing-overview{
+            padding-left: 0px;
+        }
+    }
+    
+    
+    </style>
+    
 	<section id="primary" class="content-area container inner">
 		<div id="content" class="site-content" role="main">
 
