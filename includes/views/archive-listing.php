@@ -38,9 +38,9 @@ function archive_listing_loop() {
 
 		// Start the Loop.	
 		$paged = (get_query_var('paged')) ? intval(get_query_var('paged')) : 1;
-		$args = array('post_type'=> 'listing','pagination' => 'false','posts_per_page' => '-1','order' => 'ASC','orderby'=> 'rand');
+		$args = array('post_type'=> 'listing','posts_per_page' => '20','order' => 'ASC','orderby'=> 'rand');
 		if(get_query_var('paged')){    		
-    		//$args += array('paged' => $paged);
+    		$args += array('paged' => $paged);
 		}
 		if($bedrooms > 0){    		
     		$args += array('meta_key' => '_listing_bedrooms','meta_value' => $bedrooms);
