@@ -63,14 +63,9 @@ function single_listing_post_content() {
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
         
     <style>
-    .adults {
-        width: 50%;
-        display: inline-block;
-    }
-    .children {
-        width: 50%;
-        display: inline-block;
-    }
+    .extra-persons-box { white-space: nowrap; }
+    .extra-person-box { display: inline-block; width: 50%; white-space: normal; }
+
     @media only screen and (max-device-width: 800px), screen and (max-width: 800px) {
       .slide_wrapper {
         width: 100%;
@@ -175,35 +170,37 @@ function single_listing_post_content() {
             <input type="hidden" id="checkout_date" name="checkout" value="<?=$checkout?>" >
             <input type="hidden" id="cid" name="cid" value="<?=$unit_id?>">
             <input type="text" name="daterange" id="daterange" placeholder="Select dates..." size="48" value="<?=$dateRange?>"><br>
-            <div class="adults">
-                <label>Adults</label>
-                <select class="persons" data-id="1" name="person[]" >
-                    <option>1</option>
-                    <option selected="">2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
-                </select> &nbsp; 
-            </div><div class="children">
-                <label>Children</label>
-                <select class="persons" data-id="2" name="person[]" >
-                    <option>0</option>
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4</option>
-                    <option>5</option>
-                    <option>6</option>
-                    <option>7</option>
-                    <option>8</option>
-                    <option>9</option>
-                    <option>10</option>
-                </select>
+            <div class="extra-persons-box">
+                <div class="extra-person-box">
+                    <label>Adults</label>
+                    <select class="persons" data-id="1" name="person[]" >
+                        <option>1</option>
+                        <option selected="">2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                    </select> &nbsp; 
+                </div><div class="extra-person-box">
+                    <label>Children</label>
+                    <select class="persons" data-id="2" name="person[]" >
+                        <option>0</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                    </select>
+                </div>
             </div>
             
             <div id="stay-messages">
