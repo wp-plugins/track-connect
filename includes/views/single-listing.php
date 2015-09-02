@@ -280,6 +280,8 @@ function single_listing_post_content() {
             	format: 'MM/DD/YYYY',
             	customTopBar: '<b>Please select a Check In and Check Out date...</b>',
             	autoClose: true,
+            	selectForward: true,
+            	minDays: 2,
             	stickyMonths: true,
             	startDate: moment().format('MM/DD/YYYY'),
             	beforeShowDay: function(t)
