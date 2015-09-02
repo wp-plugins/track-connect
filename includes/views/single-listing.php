@@ -65,11 +65,11 @@ function single_listing_post_content() {
     <style>
     .adults {
         width: 50%;
-        float: left;
+        display: inline-block;
     }
     .children {
         width: 50%;
-        float: left;
+        display: inline-block;
     }
     @media only screen and (max-device-width: 800px), screen and (max-width: 800px) {
       .slide_wrapper {
@@ -168,7 +168,7 @@ function single_listing_post_content() {
         </section> 
             
     	
-        <section class="quote_wrapper" id="quote_wrapper">
+        <div class="quote_wrapper clearfix" id="quote_wrapper">
             <h3 class="widget-title">Reservation Quote</h3>
             <form action="<?=$endpoint?>/irm/checkout/">
             <input type="hidden" id="checkin_date" name="checkin" value="<?=$checkin?>" >
@@ -189,8 +189,7 @@ function single_listing_post_content() {
                     <option>9</option>
                     <option>10</option>
                 </select> &nbsp; 
-            </div>
-            <div class="children">
+            </div><div class="children">
                 <label>Children</label>
                 <select class="persons" data-id="2" name="person[]" >
                     <option>0</option>
@@ -253,7 +252,7 @@ function single_listing_post_content() {
                 </div>
             </div>
             </form>
-        </section>
+        </div>
         
         <script>
         $(function()
