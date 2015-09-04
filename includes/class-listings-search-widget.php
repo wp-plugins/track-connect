@@ -17,6 +17,10 @@ class WP_Listings_Search_Widget extends WP_Widget {
         wp_enqueue_script( 'jquery-ui-datepicker' );
         wp_enqueue_style('jquery-ui-css', '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css');
         
+        $checkin = ($_REQUEST['checkin'])? $_REQUEST['checkin']:'';
+        $checkout = ($_REQUEST['checkout'])? $_REQUEST['checkout']:'';
+        $rooms = ($_REQUEST['bedrooms'])? $_REQUEST['bedrooms']:'';
+        
         //wp_enqueue_script('jquery');
         //wp_enqueue_script('bootstrap-scripts', get_template_directory_uri().'/includes/js/bootstrap-datepicker.min.js');
         
@@ -25,45 +29,43 @@ class WP_Listings_Search_Widget extends WP_Widget {
 			'button_text'	=> __( 'Search Listings', 'wp_listings' )
 		) );
 
-		global $_wp_listings_taxonomies;
+		global $_wp_listings_taxonomies,$post,$wp_query,$wp_the_query;
 
 		$listings_taxonomies = $_wp_listings_taxonomies->get_taxonomies();
 
-		extract( $args );
+		extract( $args ); 
 
 		echo $before_widget;
 
 		if ( $instance['title'] ) echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title;
 
 		echo '<form role="search" method="get" id="searchform" action="' . home_url( '/' ) . '" ><input type="hidden" value="" name="s" /><input type="hidden" value="listing" name="post_type" />';
-		echo '<input type="text" name="checkin" id="checkin" class="datepicker listing-dates" placeholder="Arrival">';
-        echo '<input type="text" name="checkout" id="checkout" class="datepicker listing-dates" placeholder="Departure">';
+		echo '<input type="text" name="checkin" id="checkin" class="datepicker listing-dates" placeholder="Arrival" value="'.$checkin.'">';
+        echo '<input type="text" name="checkout" id="checkout" class="datepicker listing-dates" placeholder="Departure" value="'.$checkout.'">';
         
         echo '<select name="bedrooms" id="bedrooms" class="listing-bedrooms">';
         echo '<option value="">Bedrooms...</option>';
         for($i=1;$i < 13;$i++){
-            echo '<option value="'.$i.'">'.$i.'</option>';
+            $selected = ($rooms == $i)? 'SELECTED' : '';
+            echo '<option '.$selected.' value="'.$i.'">'.$i.'</option>';
         }
         echo '</select>';
         
-        
 		foreach ( $listings_taxonomies as $tax => $data ) {
 			if ( ! isset( $instance[$tax] ) || ! $instance[$tax] )
-				//continue;         
+				continue;         
 
 			$terms = get_terms( $tax, array( 'orderby' => 'count', 'order' => 'DESC', 'number' => 100, 'hierarchical' => false ) );
 			if ( empty( $terms ) )
 				continue;
                 
 			$current = ! empty( $wp_query->query_vars[$tax] ) ? $wp_query->query_vars[$tax] : '';
-			if ( $tax != 'locations'){
-                continue;
-            }
+            
 			echo "<select name='$tax' id='$tax' class='wp-listings-taxonomy'>\n\t";
 			echo '<option value="" ' . selected( $current == '', true, false ) . ">{$data['labels']['name']}</option>\n";
-			foreach ( (array) $terms as $term )
-				echo "\t<option value='{$term->slug}' " . selected( $current, $term->slug, false ) . ">{$term->name}</option>\n";
-
+			foreach ( (array) $terms as $term ){
+				echo "\t<option value='{$term->slug}' " .  selected( $current == $term->slug, false ) . ">{$term->name}</option>\n";
+            }
 			echo '</select>';
 		}
         

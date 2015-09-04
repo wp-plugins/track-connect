@@ -21,7 +21,7 @@ if($checkin && $checkout){
     $checkAvailability = true;
     require_once( __DIR__ . '/../api/request.php' );
     $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
-    $availableUnits = $request->getAvailableUnits($checkin,$checkout,false);    
+    $availableUnits = $request->getAvailableUnits($checkin,$checkout,false);  
 }
 
 function archive_listing_loop() {
@@ -38,12 +38,13 @@ function archive_listing_loop() {
 
 		// Start the Loop.	
 		$paged = (get_query_var('paged')) ? intval(get_query_var('paged')) : 1;
-		$args = array('post_type'=> 'listing','posts_per_page' => '20');
+		$args = array('post_type'=> 'listing','posts_per_page' => '3');
 		if(get_query_var('paged')){    		
     		$args += array('paged' => $paged);
 		}
         
-        //$args += array('order' => 'ASC','orderby'=> 'rand');
+      
+        //$args += array('order' => 'ASC','orderby'=> 'rand',123);
 		
 		if($bedrooms > 0){    		
     		$args += array('meta_key' => '_listing_bedrooms','meta_value' => $bedrooms);
