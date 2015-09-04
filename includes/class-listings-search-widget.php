@@ -64,7 +64,7 @@ class WP_Listings_Search_Widget extends WP_Widget {
 			echo "<select name='$tax' id='$tax' class='wp-listings-taxonomy'>\n\t";
 			echo '<option value="" ' . selected( $current == '', true, false ) . ">{$data['labels']['name']}</option>\n";
 			foreach ( (array) $terms as $term ){
-				echo "\t<option value='{$term->slug}' " .  selected( $current == $term->slug, false ) . ">{$term->name}</option>\n";
+				echo "\t<option value='{$term->slug}' >{$term->name}</option>\n";
             }
 			echo '</select>';
 		}

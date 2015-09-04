@@ -38,7 +38,7 @@ function archive_listing_loop() {
 
 		// Start the Loop.	
 		$paged = (get_query_var('paged')) ? intval(get_query_var('paged')) : 1;
-		$args = array('post_type'=> 'listing','posts_per_page' => '3');
+		$args = array('post_type'=> 'listing','posts_per_page' => '20');
 		if(get_query_var('paged')){    		
     		$args += array('paged' => $paged);
 		}
