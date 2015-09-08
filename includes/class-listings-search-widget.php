@@ -44,7 +44,7 @@ class WP_Listings_Search_Widget extends WP_Widget {
         echo '<input type="text" name="checkout" id="checkout" class="datepicker listing-dates" placeholder="Departure" value="'.$checkout.'">';
         
         echo '<select name="bedrooms" id="bedrooms" class="listing-bedrooms">';
-        echo '<option value="">Bedrooms...</option>';
+        echo '<option value="">Bedrooms</option>';
         for($i=1;$i < 13;$i++){
             $selected = ($rooms == $i)? 'SELECTED' : '';
             echo '<option '.$selected.' value="'.$i.'">'.$i.'</option>';
@@ -53,19 +53,19 @@ class WP_Listings_Search_Widget extends WP_Widget {
         
 		foreach ( $listings_taxonomies as $tax => $data ) {
 			if ( ! isset( $instance[$tax] ) || ! $instance[$tax] )
-				continue;         
-
-			$terms = get_terms( $tax, array( 'orderby' => 'count', 'order' => 'DESC', 'number' => 100, 'hierarchical' => false ) );
+				continue;
+			$terms = get_terms( $tax, array( 'orderby' => 'title', 'number' => 100, 'hierarchical' => false ) );
 			if ( empty( $terms ) )
 				continue;
-                
-			$current = ! empty( $wp_query->query_vars[$tax] ) ? $wp_query->query_vars[$tax] : '';
-            
+				
+            //echo ($wp_query->query_vars['taxonomy']);
+            //print_r($wp_query->query_vars['tax_query'][0]['terms']); 
+            //echo $wp_query->query_vars['taxonomy'][$tax];
+			$current = ! empty( $wp_query->query_vars['tax_query'][0]['terms'] ) ? $wp_query->query_vars['tax_query'][0]['terms'] : '';
 			echo "<select name='$tax' id='$tax' class='wp-listings-taxonomy'>\n\t";
 			echo '<option value="" ' . selected( $current == '', true, false ) . ">{$data['labels']['name']}</option>\n";
-			foreach ( (array) $terms as $term ){
-				echo "\t<option value='{$term->slug}' >{$term->name}</option>\n";
-            }
+			foreach ( (array) $terms as $term )
+				echo "\t<option value='{$term->slug}' " . selected( $current, $term->slug, false ) . ">{$term->name}</option>\n";
 			echo '</select>';
 		}
         

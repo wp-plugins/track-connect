@@ -56,6 +56,14 @@ function wp_listings_template_include( $template ) {
 	return $template;
 }
 
+/* http://meigwilym.com/fixing-the-wordpress-pagination-404-error/ */
+/*
+function mg_news_pagination_rewrite() {
+  add_rewrite_rule(get_option('listing').'/page/?([0-9]{1,})/?$', 'index.php?pagename='.get_option('listing').'&paged=$matches[1]', 'top');
+}
+add_action('init', 'mg_news_pagination_rewrite');
+*/
+
 /**
  * Controls output of default state for the state custom field if there is one set
  */

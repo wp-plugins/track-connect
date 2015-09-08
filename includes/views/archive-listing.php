@@ -23,10 +23,92 @@ if($checkin && $checkout){
     $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
     $availableUnits = $request->getAvailableUnits($checkin,$checkout,false);  
 }
+session_start();
+
+// Retrieve consistent random set of posts with pagination
+function mam_posts_query($query) {
+   global $mam_posts_query;
+   if ($mam_posts_query && strpos($query, 'ORDER BY RAND()') !== false) {
+      $query = str_replace('ORDER BY RAND()',$mam_posts_query,$query);
+   }
+   return $query;
+}
+
+
+function wpbeginner_numeric_posts_nav() {
+    // alternative paging, not used anymore
+    
+	if( is_singular() )
+		return;
+
+	global $wp_query;
+
+	/** Stop execution if there's only 1 page */
+	if( $wp_query->max_num_pages <= 1 )
+		return;
+
+	$paged = get_query_var( 'paged' ) ? absint( get_query_var( 'paged' ) ) : 1;
+	$max   = intval( $wp_query->max_num_pages );
+
+	/**	Add current page to the array */
+	if ( $paged >= 1 )
+		$links[] = $paged;
+
+	/**	Add the pages around the current page to the array */
+	if ( $paged >= 3 ) {
+		$links[] = $paged - 1;
+		$links[] = $paged - 2;
+	}
+
+	if ( ( $paged + 2 ) <= $max ) {
+		$links[] = $paged + 2;
+		$links[] = $paged + 1;
+	}
+
+	echo '<div class="navigation-link"><ul>' . "\n";
+
+	/**	Previous Post Link */
+	if ( get_previous_posts_link() )
+		printf( '<li>%s</li>' . "\n", get_previous_posts_link() );
+
+	/**	Link to first page, plus ellipses if necessary */
+	if ( ! in_array( 1, $links ) ) {
+		$class = 1 == $paged ? ' class="active"' : '';
+
+		printf( '<li%s><a href="%s">%s</a></li>' . "\n", $class, esc_url( get_pagenum_link( 1 ) ), '1' );
+
+		if ( ! in_array( 2, $links ) )
+			echo '<li>…</li>';
+	}
+
+	/**	Link to current page, plus 2 pages in either direction if necessary */
+	sort( $links );
+	foreach ( (array) $links as $link ) {
+		$class = $paged == $link ? ' class="active"' : '';
+		printf( '<li%s><a href="%s">%s</a></li>' . "\n", $class, esc_url( get_pagenum_link( $link ) ), $link );
+	}
+
+	/**	Link to last page, plus ellipses if necessary */
+	if ( ! in_array( $max, $links ) ) {
+		if ( ! in_array( $max - 1, $links ) )
+			echo '<li>…</li>' . "\n";
+
+		$class = $paged == $max ? ' class="active"' : '';
+		printf( '<li%s><a href="%s">%s</a></li>' . "\n", $class, esc_url( get_pagenum_link( $max ) ), $max );
+	}
+
+	/**	Next Post Link */
+	if ( get_next_posts_link() )
+		printf( '<li>%s</li>' . "\n", get_next_posts_link() );
+
+	echo '</ul></div>' . "\n";
+
+}
+
 
 function archive_listing_loop() {
 
-		global $post,$wp_query,$wp_the_query,$availableUnits,$checkAvailability,$bedrooms,$checkin,$checkout;
+		global $post,$wp_query,$wp_the_query,$availableUnits,$checkAvailability,$bedrooms,$checkin,$checkout,$mam_posts_query;
 
 		$count = 0; // start counter at 0
         $unitsAvailable = true;
@@ -37,15 +119,24 @@ function archive_listing_loop() {
         }
 
 		// Start the Loop.	
-		$paged = (get_query_var('paged')) ? intval(get_query_var('paged')) : 1;
-		$args = array('post_type'=> 'listing','posts_per_page' => '20');
-		if(get_query_var('paged')){    		
-    		$args += array('paged' => $paged);
-		}
+		$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+		$args = array(
+		    'post_type'         => 'listing',
+		    'posts_per_page'    => 15,
+		    'paged'             => $paged,
+		    'order'             => 'ASC',
+		    'orderby'           => 'rand'
+        );       
         
+		add_filter('query','mam_posts_query');
+        $seed = $_SESSION['seed'];
+        if (empty($seed)) {
+          $seed = rand();
+          $_SESSION['seed'] = $seed;
+        }
+        $mam_posts_query = " ORDER BY rand($seed) "; // Turn on filter
       
-        //$args += array('order' => 'ASC','orderby'=> 'rand',123);
-		
+
 		if($bedrooms > 0){    		
     		$args += array('meta_key' => '_listing_bedrooms','meta_value' => $bedrooms);
 		}
@@ -89,8 +180,11 @@ function archive_listing_loop() {
                 ),);
 		}
 
-		query_posts($args);
-
+		//query_posts($args);
+        $wp_query = new WP_Query();
+        $wp_query->query($args);
+        $mam_posts_query = ''; // Turn off filter
+              
 		if ( have_posts() && $unitsAvailable ) : 
 		    while ( have_posts() ) : the_post();
 		    //$post = $query->post;
@@ -155,7 +249,8 @@ function archive_listing_loop() {
 		endif;
         
         if($unitsAvailable){
-            wp_listings_paging_nav($args,$paged);
+            wp_listings_paging_nav();
+            //wpbeginner_numeric_posts_nav();
         }
 }
 
@@ -214,6 +309,33 @@ get_header(); ?>
         }
     }
     
+    .navigation-link li a,
+    .navigation-link li a:hover,
+    .navigation-link li.active a,
+    .navigation-link li.disabled {
+    	color: #fff;
+    	text-decoration:none;
+    }
+    
+    .navigation-link li {
+    	display: inline;
+    }
+    
+    .navigation-link li a,
+    .navigation-link li a:hover,
+    .navigation-link li.active a,
+    .navigation-link li.disabled {
+    	background-color: #6FB7E9;
+    	border-radius: 3px;
+    	cursor: pointer;
+    	padding: 12px;
+    	padding: 0.75rem;
+    }
+    
+    .navigation-link li a:hover,
+    .navigation-link li.active a {
+    	background-color: #3C8DC5;
+    }
     
     </style>
     

@@ -113,7 +113,6 @@ class pluginApi{
                       'ping_status' => 'closed',
                       'post_modified' => $today,
                       'post_modified_gmt' => $today,
-                      'post_status' => 'publish',
                       'post_name' => $this->slugify($unit->name),
                       'post_type' => 'listing',
                 );              
