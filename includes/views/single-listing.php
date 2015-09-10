@@ -188,8 +188,8 @@ function single_listing_post_content() {
         <div class="quote_wrapper clearfix" id="quote_wrapper">
             <h3 class="widget-title">Reservation Quote</h3>
             <form target="_blank" action="<?=$endpoint?>/irm/checkout/">
-            <input type="hidden" id="checkin_date" name="checkin" value="<?=$checkin?>" >
-            <input type="hidden" id="checkout_date" name="checkout" value="<?=$checkout?>" >
+            <input type="hidden" id="checkin_date" name="checkin" value="<?=date('Y-m-d', strtotime($checkin))?>" >
+            <input type="hidden" id="checkout_date" name="checkout" value="<?=date('Y-m-d', strtotime($checkout))?>" >
             <input type="hidden" id="cid" name="cid" value="<?=$unit_id?>">
             <input type="text" name="daterange" id="daterange" placeholder="Select dates..." size="48" value="<?=$dateRange?>"><br>
             <div class="extra-persons-box">
@@ -343,8 +343,8 @@ function single_listing_post_content() {
                     data: {
                         action: 'quote_request',
                         cid: '<?=$unit_id?>',
-                        checkin: moment($('#checkin_date').val()).format("YYYY-MM-DD"),
-                        checkout: moment($('#checkout_date').val()).format("YYYY-MM-DD"),
+                        checkin: $('#checkin_date').val(),
+                        checkout: $('#checkout_date').val(),
                         persons: persons
                     },
                     success: function (d) {
