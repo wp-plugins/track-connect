@@ -45,6 +45,7 @@ class WP_Listings {
 				//__( 'Lot Square Feet:', 'wp_listings' )			=> '_listing_lot_sqft',
 			    __( 'Bedrooms:', 'wp_listings' )				=> '_listing_bedrooms',
 			    __( 'Bathrooms:', 'wp_listings' )				=> '_listing_bathrooms',
+			    __( 'Youtube ID:', 'wp_listings' )				=> '_listing_youtube_id',
 			    //__( 'Pool:', 'wp_listings' )					=> '_listing_pool'
 			),
 		) );

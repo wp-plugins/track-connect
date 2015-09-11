@@ -38,12 +38,12 @@ class pluginApi{
         $results = $wpdb->get_results("SELECT post_id as id FROM wp_postmeta WHERE _listing_domain != '".$domain."' GROUP BY post_id;");
         if(count($results)){
             foreach($results as $post){
-                $wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post->id."' AND meta_key != '_thumbnail_id' ;");
-                $wpdb->query("DELETE FROM wp_posts WHERE id = '".$post->id."' ;"); 
+                //$wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post->id."' AND meta_key != '_thumbnail_id' ;");
+                //$wpdb->query("DELETE FROM wp_posts WHERE id = '".$post->id."' ;"); 
             }     
         }
         $unitsRemoved = count($results);
-            
+
 		foreach(json_decode($units['body'])->response as $id => $unit){
         
 			if (!isset($unit->occupancy) || $unit->occupancy == 0) {
@@ -63,12 +63,14 @@ class pluginApi{
 			if($post->post_id > 0){
     			$unitsUpdated++;
     			$post_id = $post->post_id;
+    			$youtube_id = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_key = '_listing_youtube_id' LIMIT 1;");
     			$wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post_id."' AND meta_key != '_thumbnail_id'  ;");
     			$wpdb->query( $wpdb->prepare( 
                 	"
                 		INSERT INTO $wpdb->postmeta
                 		( post_id, meta_key, meta_value )
                 		VALUES 
+                		( %d, %s, %s ),
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
@@ -100,7 +102,8 @@ class pluginApi{
                         $post_id,'_listing_min_rate', $unit->min_rate,
                         $post_id,'_listing_max_rate', $unit->max_rate,
                         $post_id,'_listing_domain', $domain,
-                        $post_id,'_listing_first_image', $unit->images[0]->url
+                        $post_id,'_listing_first_image', $unit->images[0]->url,
+                        $post_id,'_listing_youtube_id', (!$youtube_id->meta_value)?null:$youtube_id->meta_value
                     )
                 ));
                 
@@ -166,6 +169,7 @@ class pluginApi{
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
                 		( %d, %s, %s ),
+                		( %d, %s, %s ),
                 		( %d, %s, %s )
                 	", 
                     array(
@@ -183,7 +187,8 @@ class pluginApi{
                         $post_id,'_listing_min_rate', $unit->min_rate,
                         $post_id,'_listing_max_rate', $unit->max_rate,
                         $post_id,'_listing_domain', $domain,
-                        $post_id,'_listing_first_image', $unit->images[0]->url
+                        $post_id,'_listing_first_image', $unit->images[0]->url,
+                        $post_id,'_listing_youtube_id', null
                     )
                 ));
                 

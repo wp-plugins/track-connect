@@ -397,10 +397,11 @@ function single_listing_post_content() {
     				<?php if (get_post_meta( $post->ID, '_listing_gallery', true) != '') { ?>
     					<li><a href="#listing-gallery">Photos</a></li>
     				<?php } ?>
-    
-    				<?php if (get_post_meta( $post->ID, '_listing_video', true) != '') { ?>
-    					<li><a href="#listing-video">Video / Virtual Tour</a></li>
+    				
+    				<?php if (get_post_meta( $post->ID, '_listing_youtube_id', true) != '') { ?>
+    					<li><a href="#listing-video">Video</a></li>
     				<?php } ?>
+    				
                     <!--
     				<?php if (get_post_meta( $post->ID, '_listing_school_neighborhood', true) != '') { ?>
     				<li><a href="#listing-school-neighborhood">Schools &amp; Neighborhood</a></li>
@@ -410,7 +411,7 @@ function single_listing_post_content() {
                 
                 <!--
                 <div id="listing-availability" itemprop="availability">
-                    <iframe frameborder="0" width="100%" height="550px" src="http://<?=$options['wp_listings_domain']?>.<?=$trackServer?>/api/vacation_rentals/index.php?cid=<?=get_post_meta( $post->ID, '_listing_unit_id', true )?>&domainweb=<?=$options['wp_listings_domain']?>&online_res=1"></iframe>
+                    <iframe frameborder="0" width="100%" height="550px" src="http://<?=$options['wp_listings_domain']?>.<?=$trackServer?>/api/vacation_rentals/index.php?cid=<?=get_post_meta( $post->ID, '_listing_unit_id', true )?>&domainweb=<?=$options['wp_listings_domain']?>&online_res=0"></iframe>
                 </div>
                 --> 
                 
@@ -441,6 +442,9 @@ function single_listing_post_content() {
     					foreach ( (array) $details_instance->property_details['col2'] as $label => $key ) {
     						$detail_value = esc_html( get_post_meta($post->ID, $key, true) );
     						if (! empty( $detail_value ) ) :
+    						    if($label == 'Youtube ID:'){
+        						    continue;
+    						    }
     							printf( $pattern, $key, esc_html( str_replace(":", "", $label)  ), $detail_value );
     						endif;
     					}
@@ -473,11 +477,11 @@ function single_listing_post_content() {
     			</div><!-- #listing-gallery -->
     			<?php } ?>
     
-    			<?php if (get_post_meta( $post->ID, '_listing_video', true) != '') { ?>
+    			<?php if (get_post_meta( $post->ID, '_listing_youtube_id', true) != '') { ?>
     			<div id="listing-video">
-    				<div class="iframe-wrap">
-    				<?php echo get_post_meta( $post->ID, '_listing_video', true); ?>
-    				</div>
+   
+    				    <iframe class="listing-youtube-video" width="100%" height="400" src="https://www.youtube.com/embed/<?=get_post_meta( $post->ID, '_listing_youtube_id', true);?>" frameborder="0" allowfullscreen></iframe>
+    			
     			</div><!-- #listing-video -->
     			<?php } ?>
     
