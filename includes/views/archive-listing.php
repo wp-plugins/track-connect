@@ -12,6 +12,7 @@ $options = get_option('plugin_wp_listings_settings');
 $checkin = ($_REQUEST['checkin'])? $_REQUEST['checkin']:false;
 $checkout = ($_REQUEST['checkout'])? $_REQUEST['checkout']:false;
 $bedrooms = ($_REQUEST['bedrooms'])? $_REQUEST['bedrooms']:false;
+$debug = ($_REQUEST['track_debug'])? $_REQUEST['track_debug']:0;
 $availableUnits = false;
 $checkAvailability = false;
 $linkString = '';
@@ -20,7 +21,7 @@ if($checkin && $checkout){
     $linkString = "?checkin=$checkin&checkout=$checkout";
     $checkAvailability = true;
     require_once( __DIR__ . '/../api/request.php' );
-    $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token']);
+    $request = new plugins\api\pluginApi($options['wp_listings_domain'],$options['wp_listings_token'],$debug);
     $availableUnits = $request->getAvailableUnits($checkin,$checkout,false);  
 }
 session_start();

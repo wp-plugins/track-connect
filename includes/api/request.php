@@ -6,11 +6,12 @@ class pluginApi{
 	protected $client;
 	protected $url;
 
-	public function __construct($domain,$token){
+	public function __construct($domain,$token,$debug = 0){
 		$this->token = $token;
-        $this->domain = $domain;		
+        $this->domain = $domain;	
+        $this->debug = 	$debug;
         $this->endpoint = (strtoupper($domain) == 'HSR')?'http://hsr.trackstaging.info':'https://'.strtolower($domain).'.trackhs.com';
-        //$this->endpoint = 'http://hsr.jreed.trackhs.com';
+        $this->endpoint = 'http://hsr.jreed.trackhs.com';
 	}
     
     public function getEndPoint(){
@@ -43,7 +44,11 @@ class pluginApi{
             }     
         }
         $unitsRemoved = count($results);
-
+		
+		if($this->debug == 1){
+			print_r(json_decode($units['body']));
+		}
+		
 		foreach(json_decode($units['body'])->response as $id => $unit){
         
 			if (!isset($unit->occupancy) || $unit->occupancy == 0) {
@@ -229,7 +234,11 @@ class pluginApi{
         );
 
 		$unitArray = [];
-
+		
+		if($this->debug == 1){
+			print_r(json_decode($units['body']));
+		}
+		
 		if(json_decode($units['body'])->success == false){
 			return [
 				'success' => false,
