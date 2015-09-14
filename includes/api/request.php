@@ -229,13 +229,25 @@ class pluginApi{
         );
 
 		$unitArray = [];
-		foreach(json_decode($units['body'])->response as $unit){
-    		$query = $wpdb->get_row("SELECT post_id FROM wp_postmeta WHERE meta_key = '_listing_unit_id' AND meta_value = '".$unit."' LIMIT 1; ");
+
+		if(json_decode($units['body'])->success == false){
+			return [
+				'success' => false,
+				'message' => json_decode($units['body'])->message
+			];
+		}
+		foreach(json_decode($units['body'])->response->available as $cid=>$avgRate){
+    		$query = $wpdb->get_row("SELECT post_id FROM wp_postmeta WHERE meta_key = '_listing_unit_id' AND meta_value = '".$cid."' LIMIT 1; ");
             $unitArray[] = $query->post_id;
+            $rateArray[$cid] = $avgRate;
 
-        }
-
-        return $unitArray;
+        }		
+		
+        return [
+        	'success' => true,
+        	'units'   => $unitArray,
+        	'rates'	  => $rateArray
+        ];
     }
     
     public function getReservedDates($unitId){

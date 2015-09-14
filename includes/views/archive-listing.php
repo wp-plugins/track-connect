@@ -112,12 +112,15 @@ function archive_listing_loop() {
 
 		$count = 0; // start counter at 0
         $unitsAvailable = true;
-
-        if($checkAvailability && !count($availableUnits)){
-            echo '<div align="center" style="padding:25px;">No units are available from '. date('m/d/Y', strtotime($checkin)) . ' to ' .  date('m/d/Y', strtotime($checkout)). '.</div>';
+		
+        if($checkAvailability && $availableUnits['success'] == false){
+            echo '<div align="center" style="padding:25px;">'.$availableUnits['message'].'</div>';
             $unitsAvailable = false;
         }
-
+		
+		$avgRates = null;
+		$avgRates = $availableUnits['rates'];
+		
 		// Start the Loop.	
 		$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 		$args = array(
@@ -141,7 +144,7 @@ function archive_listing_loop() {
     		$args += array('meta_key' => '_listing_bedrooms','meta_value' => $bedrooms);
 		}
 		if($checkAvailability){    		
-    		$args += array('post__in' => $availableUnits);
+    		$args += array('post__in' => $availableUnits['units']);
 		}  
 		if(get_query_var('status') != ''){   		
     		$args += array('tax_query' => array(
@@ -215,8 +218,11 @@ function archive_listing_loop() {
 
 			$loop .= sprintf( '<div class="listing-thumb-meta">' );
             
-            if ( '' != get_post_meta( $post->ID, '_listing_min_rate', true ) ) {
-                $loop .= sprintf( '<span class="listing-property-type">%s</span>', 'starting at' );
+            if ( $avgRates[$unitId] > 0 ) {
+                $loop .= sprintf( '<span class="listing-property-type">%s</span>', 'avg. rate' );
+				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', number_format($avgRates[$unitId],0) );
+			}else{
+				$loop .= sprintf( '<span class="listing-property-type">%s</span>', 'starting at' );
 				$loop .= sprintf( '<span class="listing-price">$%s/night</span>', number_format(get_post_meta( $post->ID, '_listing_min_rate', true ),0) );
 			}
 			
