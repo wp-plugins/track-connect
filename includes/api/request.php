@@ -11,7 +11,7 @@ class pluginApi{
         $this->domain = $domain;	
         $this->debug = 	$debug;
         $this->endpoint = (strtoupper($domain) == 'HSR')?'http://hsr.trackstaging.info':'https://'.strtolower($domain).'.trackhs.com';
-        $this->endpoint = 'http://hsr.jreed.trackhs.com';
+        //$this->endpoint = 'http://hsr.jreed.trackhs.com';
 	}
     
     public function getEndPoint(){
