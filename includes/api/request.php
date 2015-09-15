@@ -68,7 +68,11 @@ class pluginApi{
 			if($post->post_id > 0){
     			$unitsUpdated++;
     			$post_id = $post->post_id;
-    			$youtube_id = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_key = '_listing_youtube_id' LIMIT 1;");
+    			$youtube_id = null;
+    			$youtube = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_key = '_listing_youtube_id' LIMIT 1;");
+    			if($youtube->meta_value){
+    				$youtube_id = $youtube->meta_value;
+    			}
     			$wpdb->query("DELETE FROM wp_postmeta WHERE post_id = '".$post_id."' AND meta_key != '_thumbnail_id'  ;");
     			$wpdb->query( $wpdb->prepare( 
                 	"
@@ -108,7 +112,7 @@ class pluginApi{
                         $post_id,'_listing_max_rate', $unit->max_rate,
                         $post_id,'_listing_domain', $domain,
                         $post_id,'_listing_first_image', $unit->images[0]->url,
-                        $post_id,'_listing_youtube_id', (!$youtube_id->meta_value)?null:$youtube_id->meta_value
+                        $post_id,'_listing_youtube_id', (!$youtube_id)?null:$youtube_id
                     )
                 ));
                 
