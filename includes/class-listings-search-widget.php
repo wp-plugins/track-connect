@@ -7,10 +7,11 @@
  */
 class WP_Listings_Search_Widget extends WP_Widget {
    
+    // used to be WP_Listings_Search_Widget
 	function WP_Listings_Search_Widget() {
 		$widget_ops = array( 'classname' => 'listings-search wp-listings-search wp-listings-search-sidebar', 'description' => __( 'Display listings search dropdown', 'wp_listings' ) );
 		$control_ops = array( 'width' => 300, 'height' => 350, 'id_base' => 'listings-search' );
-		$this->WP_Widget( 'listings-search', __( 'WP Listings - Search', 'wp_listings' ), $widget_ops, $control_ops );
+		$this->__construct( 'listings-search', __( 'WP Listings - Search', 'wp_listings' ), $widget_ops, $control_ops );
 	}
 
 	function widget( $args, $instance ) {

@@ -69,7 +69,7 @@ class pluginApi{
     			$unitsUpdated++;
     			$post_id = $post->post_id;
     			$youtube_id = null;
-    			$youtube = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_key = '_listing_youtube_id' LIMIT 1;");
+    			$youtube = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE post_id = '".$post_id."' AND meta_key = '_listing_youtube_id' LIMIT 1;");
     			if($youtube->meta_value){
     				$youtube_id = $youtube->meta_value;
     			}
@@ -275,7 +275,6 @@ class pluginApi{
 			    )
 			)
         );
-
         return json_decode($units['body'])->response;
     }
     
