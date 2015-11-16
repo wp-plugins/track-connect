@@ -133,11 +133,14 @@ function archive_listing_loop() {
         );       
         
 		add_filter('query','mam_posts_query');
-        $seed = $_SESSION['seed'];
+		$seed = date('G');       
+        /*
+	    $seed = $_SESSION['seed'];
         if (empty($seed)) {
-          $seed = rand();
+          $seed = rand();          
           $_SESSION['seed'] = $seed;
         }
+        */
         $mam_posts_query = " ORDER BY rand($seed) "; // Turn on filter
       
 

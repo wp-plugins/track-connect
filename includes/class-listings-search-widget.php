@@ -78,14 +78,39 @@ class WP_Listings_Search_Widget extends WP_Widget {
 		echo $after_widget;
 		?>
 		<script type="text/javascript">
-        ( function($) {
-
+        jQuery(function($) {
+			
+			/*
             $('.datepicker').on('click', function() {
                 $(this).datepicker({ dateFormat: "mm/dd/yy" });
                 $(this).datepicker('show');
             });
+            */
+            
+            $( "#checkin" ).datepicker({
+		      defaultDate: "+1w",
+		      changeMonth: true,
+		      numberOfMonths: 1,
+		      onClose: function( selectedDate ) {
+		        $( "#checkout" ).datepicker( "option", "minDate", selectedDate );
+		      },
+		      onSelect: function(dateText, inst) { 
+    		        var date2 = $('#checkin').datepicker('getDate', '+1d'); 
+                      date2.setDate(date2.getDate()+1); 
+                      $('#checkout').datepicker('setDate', date2);
+			  }
+		    });
+		    $( "#checkout" ).datepicker({
+		      defaultDate: "+1w",
+		      changeMonth: true,
+		      numberOfMonths: 1,
+		      onClose: function( selectedDate ) {
+		        $( "#checkin" ).datepicker( "option", "maxDate", selectedDate );
+		      }
+		    });
+			
 
-        })(jQuery);
+        });
         </script>
         <?php
 
