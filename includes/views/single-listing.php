@@ -461,9 +461,7 @@ function single_listing_post_content() {
                         <ul class="amenities" >
                         <?php foreach($amenitiesArray as $amenity){
                             $val = '';
-                            if($amenity->type == 'boolean' && $amenity->number == 1){ $val =  $amenity->name; }
-                            if($amenity->type == 'text' && $amenity->number > 0){ $val = $amenity->name . ': '.$amenity->number; }
-                            if(!$amenity->type){ $val = $amenity->name; }
+                            $val =  $amenity->name;
                             if($val == ''){ continue; };
                             echo '<li>●'.$val.'</li>';
                         } ?> 
